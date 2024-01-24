@@ -11,7 +11,7 @@ services:
     environment:
       - "constraint:node==qserver"
   clock:
-    image: rqure/clock:v2.0.2
+    image: rqure/clock:v2.0.6
     restart: always
     deploy:
       mode: replicated
