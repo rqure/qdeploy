@@ -1,0 +1,67 @@
+version: "3.3"
+services:
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      - "constraint:node==qserver"
+  clock:
+    image: rqure/clock:1.0.0
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+    hostname: '{{.Node.Hostname}}'    
+  mosquitto:
+    image: eclipse-mosquitto
+    ports:
+      - "1883:1883" #default mqtt port
+      - "9001:9001" #default mqtt port for websockets
+    volumes:
+      - ./services/mosquitto/config:/mosquitto/config:rw
+      - ./services/mosquitto/data:/mosquitto/data:rw
+      - ./services/mosquitto/log:/mosquitto/log:rw
+  dmm:
+    image: docker
+    entrypoint: docker
+    restart: unless-stopped
+    privileged: true
+    command: |
+      run
+      -i
+      --rm
+      --privileged
+      --cgroupns=host
+      --pid=host
+      --userns=host
+      -v /sys:/host/sys
+      -v /var/run/docker.sock:/var/run/docker.sock
+      -v /dev:/dev
+      ghcr.io/allfro/allfro/device-mapping-manager:latest 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      mode: global
+  zigbee2mqtt:
+    image: koenkk/zigbee2mqtt
+    restart: unless-stopped
+    volumes:
+      - ./services/zigbee2mqtt/data:/app/data
+      - /run/udev:/run/udev:ro
+      - /dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_aa95f4a441beed118b6d6c2e38a92db5-if00-port0:/dev/ttyACM0
+    ports:
+      # Frontend port
+      - 8080:8080
+    environment:
+      - TZ=America/Edmonton
+    devices:
+      # Make sure this matched your adapter location
+      - /dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_aa95f4a441beed118b6d6c2e38a92db5-if00-port0:/dev/ttyACM0
+    deploy:
+      mode: replicated
+      replicas: 1
