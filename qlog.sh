@@ -2,7 +2,7 @@
 
 # Function to handle the SIGINT signal (Ctrl+C)
 cleanup() {
-    echo "Caught SIGINT signal. Stopping the Docker container..."
+    echo "Caught SIGINT signal. Stopping the container..."
     docker stop "$CONTAINER_ID"
     exit 0
 }
