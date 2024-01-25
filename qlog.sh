@@ -10,4 +10,4 @@ IMAGE=rqure/logger:v1.0.1
 
 APP_NAME=$1
 
-docker run --attach STDOUT --attach STDERR --attach STDIN -e APP_NAME=$APP_NAME $IMAGE
+docker run --network qservice_default --attach STDOUT --attach STDERR --attach STDIN -e APP_NAME=$APP_NAME $IMAGE
