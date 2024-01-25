@@ -21,7 +21,7 @@ APP_NAME=$1
 trap cleanup SIGINT
 
 # Run docker and get the container ID
-CONTAINER_ID=$(docker run --network $NETWORK --attach STDOUT --attach STDERR -e APP_NAME=$APP_NAME $IMAGE)
+CONTAINER_ID=$(docker run --network $NETWORK --detach -e APP_NAME=$APP_NAME $IMAGE)
 
 # Wait for the container to stop
 docker wait "$CONTAINER_ID"
