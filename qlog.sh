@@ -12,4 +12,5 @@ APP_NAME=$1
 
 # Run docker and get the container ID
 CONTAINER_ID=$(docker run --network $NETWORK -d -e APP_NAME=$APP_NAME $IMAGE)
-docker attach $CONTAINER_ID
+docker logs -f $CONTAINER_ID
+docker stop $CONTAINER_ID
