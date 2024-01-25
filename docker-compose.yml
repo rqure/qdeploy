@@ -2,7 +2,6 @@ version: "3.3"
 services:
   redis:
     image: redis:alpine
-    restart: always
     ports:
       - '6379:6379'
     deploy:
@@ -12,7 +11,6 @@ services:
       - "constraint:node==qserver"
   clock:
     image: rqure/clock:v2.0.9
-    restart: always
     deploy:
       mode: replicated
       replicas: 1
