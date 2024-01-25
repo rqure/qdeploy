@@ -6,7 +6,7 @@ if [ "$#" -ne 1 ]; then
   exit 1
 fi
 
-IMAGE=rqure/logger:$IMAGE_VERSION
+IMAGE=rqure/logger:v1.0.1
 
 APP_NAME=$1
 
