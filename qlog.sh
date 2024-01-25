@@ -21,5 +21,5 @@ IMAGE=rqure/logger:v1.0.2
 APP_NAME=$1
 
 # Run docker and get the container ID
-CONTAINER_ID=$(docker run --network $NETWORK -d -e APP_NAME=$APP_NAME $IMAGE)
+CONTAINER_ID=$(docker run --network $NETWORK -d --rm -e APP_NAME=$APP_NAME $IMAGE)
 docker logs -f $CONTAINER_ID
