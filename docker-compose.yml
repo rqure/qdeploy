@@ -15,3 +15,6 @@ services:
       mode: replicated
       replicas: 1
     hostname: '{{.Node.Hostname}}'
+networks:
+  default:
+    attachable: true
