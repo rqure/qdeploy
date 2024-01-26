@@ -15,6 +15,12 @@ services:
       mode: replicated
       replicas: 1
     hostname: '{{.Node.Hostname}}'
+  exchange:
+    image: rqure/exchange:v2.0.0
+    deploy:
+      mode: replicated
+      replicas: 1
+    hostname: '{{.Node.Hostname}}'
 networks:
   default:
     attachable: true
