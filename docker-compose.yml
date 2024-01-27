@@ -10,13 +10,13 @@ services:
     environment:
       - "constraint:node==qserver"
   clock:
-    image: rqure/clock:v2.0.10
+    image: rqure/clock:v2.0.11
     deploy:
       mode: replicated
       replicas: 1
     hostname: '{{.Node.Hostname}}'
   exchange:
-    image: rqure/exchange:v2.0.2
+    image: rqure/exchange:v2.0.3
     deploy:
       mode: replicated
       replicas: 1
