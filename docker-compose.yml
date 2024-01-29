@@ -10,19 +10,25 @@ services:
     environment:
       - "constraint:node==qserver"
   clock:
-    image: rqure/clock:v2.0.11
+    image: rqure/clock:v2.0.12
     deploy:
       mode: replicated
       replicas: 1
     hostname: '{{.Node.Hostname}}'
   exchange:
-    image: rqure/exchange:v2.0.3
+    image: rqure/exchange:v2.0.4
     deploy:
       mode: replicated
       replicas: 1
     hostname: '{{.Node.Hostname}}'
   audio-player:
-    image: rqure/audio-player:v1.0.1
+    image: rqure/audio-player:v1.0.2
+    deploy:
+      mode: replicated
+      replicas: 1
+    hostname: '{{.Node.Hostname}}'
+  prayer:
+    image: rqure/prayer:v2.0.1
     deploy:
       mode: replicated
       replicas: 1
