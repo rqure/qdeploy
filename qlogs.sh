@@ -17,7 +17,7 @@ fi
 trap cleanup SIGINT
 
 NETWORK=qservice_default
-IMAGE=rqure/logger:v1.0.5
+IMAGE=rqure/logger:v1.0.6
 APP_NAME=$1
 
 # Run docker and get the container ID
