@@ -21,6 +21,12 @@ services:
       mode: replicated
       replicas: 1
     hostname: '{{.Node.Hostname}}'
+  audio-player:
+    image: rqure/audio-player:v1.0.1
+    deploy:
+      mode: replicated
+      replicas: 1
+    hostname: '{{.Node.Hostname}}'
 networks:
   default:
     attachable: true
