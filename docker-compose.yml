@@ -22,13 +22,13 @@ services:
       replicas: 1
     hostname: '{{.Node.Hostname}}'
   audio-player:
-    image: rqure/audio-player:v1.0.2
+    image: rqure/audio-player:v1.0.3
     deploy:
       mode: replicated
       replicas: 1
     hostname: '{{.Node.Hostname}}'
   prayer:
-    image: rqure/prayer:v2.0.1
+    image: rqure/prayer:v2.0.2
     deploy:
       mode: replicated
       replicas: 1
