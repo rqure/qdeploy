@@ -16,7 +16,7 @@ services:
       replicas: 1
     hostname: '{{.Node.Hostname}}'
   exchange:
-    image: rqure/exchange:v2.0.4
+    image: rqure/exchange:v2.0.5
     deploy:
       mode: replicated
       replicas: 1
