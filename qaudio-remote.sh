@@ -22,4 +22,3 @@ AUDIO_FILE=$1
 
 # Run docker and get the container ID
 CONTAINER_ID=$(docker run --network $NETWORK -d --rm -e AUDIO_FILE=$AUDIO_FILE $IMAGE)
-docker logs -f $CONTAINER_ID
