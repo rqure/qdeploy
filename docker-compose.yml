@@ -22,7 +22,7 @@ services:
       replicas: 1
     hostname: '{{.Node.Hostname}}'
   audio-player:
-    image: rqure/audio-player:v1.0.7
+    image: rqure/audio-player:v1.0.8
     deploy:
       mode: replicated
       replicas: 1
