@@ -44,6 +44,9 @@ services:
     ports:
       - 1883:1883
       - 9001:9001
+    deploy:
+      mode: replicated
+      replicas: 1
   zigbee2mqtt:
     image: rqure/zigbee2mqtt:v1.0.0
     restart: unless-stopped
