@@ -3,7 +3,7 @@ services:
   redis:
     image: redis:alpine
     ports:
-      - '6379:6379'
+      - 6379:6379
     deploy:
       mode: replicated
       replicas: 1
@@ -33,6 +33,25 @@ services:
       mode: replicated
       replicas: 1
     hostname: '{{.Node.Hostname}}'
+  dmm:
+    image: rqure/dmm:v1.0.0
+    restart: unless-stopped
+    privileged: true
+    deploy:
+      mode: global
+  mosquitto:
+    image: rqure/mosquitto:v1.0.0
+    ports:
+      - 1883:1883
+      - 9001:9001
+  zigbee2mqtt:
+    image: rqure/zigbee2mqtt:v1.0.0
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    deploy:
+      mode: replicated
+      replicas: 1
 networks:
   default:
     attachable: true
