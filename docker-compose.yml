@@ -29,6 +29,8 @@ services:
       replicas: 1
   dmm:
     image: rqure/dmm:v1.0.0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     deploy:
       mode: global
   mosquitto:
