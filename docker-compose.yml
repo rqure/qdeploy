@@ -29,8 +29,6 @@ services:
       replicas: 1
   dmm:
     image: rqure/dmm:v1.0.0
-    restart: unless-stopped
-    privileged: true
     deploy:
       mode: global
   mosquitto:
@@ -43,11 +41,8 @@ services:
       replicas: 1
   zigbee2mqtt:
     image: rqure/zigbee2mqtt:v1.0.0
-    restart: unless-stopped
     volumes:
       - /run/udev:/run/udev:ro
-      - /dev/ttyUSB0:/dev/ttyACM0
-    devices:
       - /dev/ttyUSB0:/dev/ttyACM0
     ports:
       - 8080:8080
