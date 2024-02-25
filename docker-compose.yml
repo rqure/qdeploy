@@ -51,6 +51,11 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+  qmq2mqtt:
+    image: rqure/qmq2mqtt:v1.0.0
+    deploy:
+      mode: replicated
+      replicas: 1
 networks:
   default:
     attachable: true
