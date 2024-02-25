@@ -55,6 +55,7 @@ services:
     image: rqure/qmq2mqtt:v1.0.1
     environment:
       - QMQ_LOG_LEVEL=0
+      - MQTT_ADDR=tcp://mosquitto:1883
     deploy:
       mode: replicated
       replicas: 1
