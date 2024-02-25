@@ -52,7 +52,9 @@ services:
       mode: replicated
       replicas: 1
   qmq2mqtt:
-    image: rqure/qmq2mqtt:v1.0.0
+    image: rqure/qmq2mqtt:v1.0.1
+    environment:
+      - QMQ_LOG_LEVEL=0
     deploy:
       mode: replicated
       replicas: 1
