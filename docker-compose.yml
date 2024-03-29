@@ -63,6 +63,8 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    ports:
+      - 20000:20000
 networks:
   default:
     attachable: true
