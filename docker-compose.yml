@@ -59,7 +59,7 @@ services:
       mode: replicated
       replicas: 1
   garage:
-    image: rqure/garage:v1.0.10
+    image: rqure/garage:v1.0.11
     deploy:
       mode: replicated
       replicas: 1
