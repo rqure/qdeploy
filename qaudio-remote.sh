@@ -17,7 +17,7 @@ fi
 trap cleanup SIGINT
 
 NETWORK=qservice_default
-IMAGE=rqure/audio-remote:v1.0.0
+IMAGE=rqure/audio-remote:v1.0.1
 AUDIO_FILE=$1
 
 # Run docker and get the container ID
