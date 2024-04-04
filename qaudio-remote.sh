@@ -7,18 +7,26 @@ cleanup() {
     exit 0
 }
 
-# Check if exactly one argument is given
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 <app name>"
-  exit 1
-fi
+while getopts ":f:t:" OPTION; do
+    case "${OPTION}" in
+        f)
+            FILE_PATH=${OPTARG}
+            ;;
+        t)
+            TEXT=${OPTARG}
+            ;;
+        *)
+            echo "Invalid option: -$OPTARG" >&2
+            exit 1
+            ;;
+    esac
+done
 
 # Trap the SIGINT signal
 trap cleanup SIGINT
 
 NETWORK=qservice_default
-IMAGE=rqure/audio-remote:v1.0.1
-AUDIO_FILE=$1
+IMAGE=rqure/audio-remote:v1.0.2
 
 # Run docker and get the container ID
-CONTAINER_ID=$(docker run --network $NETWORK -d --rm -e AUDIO_FILE=$AUDIO_FILE $IMAGE)
+CONTAINER_ID=$(docker run --network $NETWORK -d --rm -e AUDIO_FILE=$FILE_PATH -e TEXT_TO_SPEECH=$TEXT $IMAGE)
