@@ -26,7 +26,7 @@ done
 trap cleanup SIGINT
 
 NETWORK=qservice_default
-IMAGE=rqure/audio-remote:v1.0.2
+IMAGE=rqure/audio-remote:v1.0.3
 
 # Run docker and get the container ID
-CONTAINER_ID=$(docker run --network $NETWORK -d --rm -e AUDIO_FILE=$FILE_PATH -e TEXT_TO_SPEECH=$TEXT $IMAGE)
+CONTAINER_ID=$(docker run --network $NETWORK -d --rm -e AUDIO_FILE="$FILE_PATH" -e TEXT_TO_SPEECH="$TEXT" $IMAGE)
