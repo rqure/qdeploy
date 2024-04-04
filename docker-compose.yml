@@ -13,12 +13,12 @@ services:
       mode: replicated
       replicas: 1
   exchange:
-    image: rqure/exchange:v2.0.7
+    image: rqure/exchange:v2.0.8
     deploy:
       mode: replicated
       replicas: 1
   audio-player:
-    image: rqure/audio-player:v1.0.12
+    image: rqure/audio-player:v1.0.13
     deploy:
       mode: replicated
       replicas: 1
