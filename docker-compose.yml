@@ -8,12 +8,12 @@ services:
       mode: replicated
       replicas: 1
   clock:
-    image: rqure/clock:v2.1.1
+    image: rqure/clock:v2.1.2
     deploy:
       mode: replicated
       replicas: 1
   exchange:
-    image: rqure/exchange:v2.1.1
+    image: rqure/exchange:v2.1.2
     deploy:
       mode: replicated
       replicas: 1
@@ -23,7 +23,7 @@ services:
       mode: replicated
       replicas: 1
   prayer:
-    image: rqure/prayer:v2.1.0
+    image: rqure/prayer:v2.1.1
     deploy:
       mode: replicated
       replicas: 1
@@ -52,14 +52,14 @@ services:
       mode: replicated
       replicas: 1
   qmq2mqtt:
-    image: rqure/qmq2mqtt:v1.1.0
+    image: rqure/qmq2mqtt:v1.1.1
     environment:
       - QMQ_LOG_LEVEL=0
     deploy:
       mode: replicated
       replicas: 1
   garage:
-    image: rqure/garage:v1.1.2
+    image: rqure/garage:v1.1.3
     deploy:
       mode: replicated
       replicas: 1
