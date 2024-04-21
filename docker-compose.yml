@@ -88,7 +88,7 @@ services:
       - 51820:51820/udp
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
-  nginx:
+  http-server:
     image: ghcr.io/patrickdappollonio/docker-http-server:v2
     volumes:
       - ./volumes/http-server/wireguard:/wireguard
