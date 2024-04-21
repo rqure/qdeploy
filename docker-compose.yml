@@ -88,6 +88,15 @@ services:
       - 51820:51820/udp
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
+  nginx:
+    image: ghcr.io/patrickdappollonio/docker-http-server:v2
+    volumes:
+      - ./volumes/http-server/wireguard:/wireguard
+    ports:
+      - 5000:5000
+    deploy:
+      mode: replicated
+      replicas: 1
 networks:
   default:
     attachable: true

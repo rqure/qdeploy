@@ -20,6 +20,11 @@ mkdir -p volumes/duckdns/
 
 mkdir -p volumes/wireguard/
 
+mkdir -p volumes/http-server/
+if [ ! -f volumes/http-server/wireguard ]; then
+    ln -s ../wireguard volumes/http-server/wireguard
+fi
+
 mkdir -p volumes/qexchange/
 if [ ! -f volumes/qexchange/exchanges.json ]; then
     curl https://raw.githubusercontent.com/rqure/qexchange/main/exchanges.json -o volumes/qexchange/exchanges.json
