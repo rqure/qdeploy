@@ -15,4 +15,4 @@ if [ ! -f volumes/qzigbee2mqtt/configuration.yaml ]; then
 fi
 
 # Deploy the stack
-# docker stack deploy --compose-file=docker-compose.yml qservice
+docker stack deploy --compose-file=docker-compose.yml qservice
