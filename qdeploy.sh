@@ -11,9 +11,9 @@ if [ ! -f ~/.wireguard.serverurl ]; then
     touch ~/.wireguard.serverurl
 fi
 
-export SUBDOMAINS=$(cat ~/.duckdns.subdomains)
-export TOKEN=$(cat ~/.duckdns.token)
-export SERVERURL=$(cat ~/.wireguard.serverurl)
+export DUCKDNS_SUBDOMAINS=$(cat ~/.duckdns.subdomains)
+export DUCKDNS_TOKEN=$(cat ~/.duckdns.token)
+export WIRGUARD_SERVERURL=$(cat ~/.wireguard.serverurl)
 
 # Create volumes for config and data
 mkdir -p volumes/duckdns/

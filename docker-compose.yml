@@ -71,13 +71,19 @@ services:
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
     volumes:
-        - ./volumes/duckdns:/config
+      - ./volumes/duckdns:/config
+    environment:
+      - SUBDOMAINS=${DUCKDNS_SUBDOMAINS}
+      - TOKEN=${DUCKDNS_TOKEN}
   wireguard:
     image: lscr.io/linuxserver/wireguard:latest
     cap_add:
       - NET_ADMIN
     volumes:
       - ./volumes/wireguard:/config
+    environment:
+      - SERVERURL=${WIREGUARD_SERVERURL}
+      - PEERS=10
     ports:
       - 51820:51820/udp
     sysctls:
