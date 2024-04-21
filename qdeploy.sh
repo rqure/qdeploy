@@ -11,7 +11,7 @@ if [ -f ~/.wireguard.serverurl ]; then
     touch ~/.wireguard.serverurl
 fi
 
-export SUBDOMAINS=$(cat ~/.duckdns.subdomains
+export SUBDOMAINS=$(cat ~/.duckdns.subdomains)
 export TOKEN=$(cat ~/.duckdns.token)
 export SERVERURL=$(cat ~/.wireguard.serverurl)
 
