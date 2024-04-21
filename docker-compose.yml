@@ -17,6 +17,8 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    volumes:
+      - ./volumes/qexchange/exchanges.json:/exchanges.json
   audio-player:
     image: rqure/audio-player:v1.1.8
     deploy:
@@ -46,7 +48,7 @@ services:
     volumes:
       - /run/udev:/run/udev:ro
       - /dev/ttyUSB0:/dev/ttyACM0
-      - ./volumes/zigbee2mqtt:/app/data
+      - ./volumes/qzigbee2mqtt:/app/data
     ports:
       - 8080:8080
     deploy:
