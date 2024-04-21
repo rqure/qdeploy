@@ -6,6 +6,7 @@ mkdir -p volumes/openvpn/
 if [ ! "$(ls -A volumes/openvpn/)" ]; then
     docker run -v ./volumes/openvpn:/etc/openvpn --rm kylemanna/openvpn ovpn_genconfig -u udp://vpn.qmq
     docker run -v ./volumes/openvpn:/etc/openvpn --rm -it kylemanna/openvpn ovpn_initpki
+    docker run -v ./volumes/openvpn:/etc/openvpn --rm -it kylemanna/openvpn easyrsa build-client-full qanonymous nopass
 fi
 
 mkdir -p volumes/qexchange/
