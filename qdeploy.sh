@@ -1,13 +1,13 @@
 # Set environment)
-if [ -f ~/.duckdns.subdomains ]; then
+if [ ! -f ~/.duckdns.subdomains ]; then
     touch ~/.duckdns.subdomains
 fi
 
-if [ -f ~/.duckdns.token ]; then
+if [ ! -f ~/.duckdns.token ]; then
     touch ~/.duckdns.token
 fi
 
-if [ -f ~/.wireguard.serverurl ]; then
+if [ ! -f ~/.wireguard.serverurl ]; then
     touch ~/.wireguard.serverurl
 fi
 
