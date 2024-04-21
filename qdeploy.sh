@@ -1,8 +1,12 @@
-# Create .env file
+# Set environment
 export HOST_ADDR=$(curl -s https://api.ipify.org)
 
 # Create volumes for config and data
 mkdir -p volumes/openvpn/
+if [ ! "$(ls -A volumes/openvpn/)" ]; then
+    docker run -v ./volumes/openvpn:/etc/openvpn --rm kylemanna/openvpn ovpn_genconfig -u udp://vpn.qmq
+    docker run -v ./volumes/openvpn:/etc/openvpn --rm -it kylemanna/openvpn ovpn_initpki
+fi
 
 mkdir -p volumes/qexchange/
 if [ ! -f volumes/qexchange/exchanges.json ]; then

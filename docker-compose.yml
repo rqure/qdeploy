@@ -69,15 +69,13 @@ services:
     ports:
       - 20000:20000
   dockovpn:
-    image: alekslitvinenk/openvpn
+    image: kylemanna/openvpn
     cap_add:
         - NET_ADMIN
     ports:
-        - 1194:1194/udp # Expose tcp if you defined HOST_TUN_PROTOCOL=tcp
-    environment:
-        HOST_ADDR: ${HOST_ADDR} 
+        - 1194:1194/udp
     volumes:
-        - ./volumes/openvpn:/opt/Dockovpn_data
+        - ./volumes/openvpn:/etc/openvpn
 networks:
   default:
     attachable: true
