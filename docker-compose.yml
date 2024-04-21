@@ -68,14 +68,20 @@ services:
       replicas: 1
     ports:
       - 20000:20000
-  dockovpn:
-    image: kylemanna/openvpn
-    cap_add:
-        - NET_ADMIN
-    ports:
-        - 1194:1194/udp
+  duckdns:
+    image: lscr.io/linuxserver/duckdns:latest
     volumes:
-        - ./volumes/openvpn:/etc/openvpn
+        - ./volumes/duckdns:/config
+  wireguard:
+    image: lscr.io/linuxserver/wireguard:latest
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./volumes/wireguard:/config
+    ports:
+      - 51820:51820/udp
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
 networks:
   default:
     attachable: true
