@@ -84,7 +84,8 @@ services:
     environment:
       - SERVERURL=${WIREGUARD_SERVERURL}
       - PEERS=10
-      - ALLOWEDIPS=0.0.0.0/0
+      - INTERNAL_SUBNET=10.13.13.0
+      - ALLOWEDIPS=10.13.13.0/24,192.168.1.0/24,172.17.0.0/24
     ports:
       - 51820:51820/udp
     sysctls:
