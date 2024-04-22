@@ -13,7 +13,7 @@ fi
 
 export DUCKDNS_SUBDOMAINS=$(cat ~/.duckdns.subdomains)
 export DUCKDNS_TOKEN=$(cat ~/.duckdns.token)
-export WIRGUARD_SERVERURL=$(cat ~/.wireguard.serverurl)
+export WIREGUARD_SERVERURL=$(cat ~/.wireguard.serverurl)
 
 # Create volumes for config and data
 mkdir -p volumes/duckdns/
