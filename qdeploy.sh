@@ -20,11 +20,6 @@ mkdir -p volumes/duckdns/
 
 mkdir -p volumes/wireguard/
 
-mkdir -p volumes/qexchange/
-if [ ! -f volumes/qexchange/exchanges.json ]; then
-    curl https://raw.githubusercontent.com/rqure/qexchange/main/exchanges.json -o volumes/qexchange/exchanges.json
-fi
-
 mkdir -p volumes/qzigbee2mqtt/
 if [ ! -f volumes/qzigbee2mqtt/configuration.yaml ]; then
     curl https://raw.githubusercontent.com/rqure/qzigbee2mqtt/main/configuration.yaml -o volumes/qzigbee2mqtt/configuration.yaml
