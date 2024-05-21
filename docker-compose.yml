@@ -18,7 +18,7 @@ services:
       mode: replicated
       replicas: 1
   prayer:
-    image: rqure/prayer:v2.1.3
+    image: rqure/prayer:v2.1.4
     deploy:
       mode: replicated
       replicas: 1
