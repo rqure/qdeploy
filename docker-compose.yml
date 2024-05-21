@@ -13,7 +13,7 @@ services:
       mode: replicated
       replicas: 1
   audio-player:
-    image: rqure/audio-player:v1.1.9
+    image: rqure/audio-player:v1.1.10
     deploy:
       mode: replicated
       replicas: 1
