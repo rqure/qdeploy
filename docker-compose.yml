@@ -2,23 +2,25 @@ version: "3.3"
 services:
   redis:
     image: redis:alpine
+    volumes:
+      - ./volumes/qredis/data:/data
     ports:
       - 6379:6379
     deploy:
       mode: replicated
       replicas: 1
   clock:
-    image: rqure/clock:v2.1.5
+    image: rqure/clock:v2.2.0
     deploy:
       mode: replicated
       replicas: 1
   audio-player:
-    image: rqure/audio-player:v1.1.11
+    image: rqure/audio-player:v1.2.0
     deploy:
       mode: replicated
       replicas: 1
   prayer:
-    image: rqure/prayer:v2.1.6
+    image: rqure/adhan:v2.2.0
     deploy:
       mode: replicated
       replicas: 1
@@ -53,12 +55,12 @@ services:
       - QMQ_LOG_LEVEL=0
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0
   garage:
     image: rqure/garage:v1.1.8
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0
     ports:
       - 20000:20000
   duckdns:
