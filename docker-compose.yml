@@ -20,7 +20,7 @@ services:
       mode: replicated
       replicas: 1
   prayer:
-    image: rqure/adhan:v2.2.0
+    image: rqure/adhan:v2.2.1
     deploy:
       mode: replicated
       replicas: 1
