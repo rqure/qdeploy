@@ -67,7 +67,7 @@ services:
     image: rqure/webgateway:v0.0.8
     deploy:
       mode: replicated
-      replicas: 0
+      replicas: 1
     ports:
       - 20000:20000
   duckdns:
