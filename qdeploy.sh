@@ -26,9 +26,6 @@ if [ ! -f volumes/qzigbee2mqtt/configuration.yaml ]; then
 fi
 
 mkdir -p volumes/qredis/data/
-#if [ -z "$(ls -A volumes/qredis/data/)" ]; then
-#
-#fi
 
 # Deploy the stack
 docker stack deploy --compose-file=docker-compose.yml qservice
