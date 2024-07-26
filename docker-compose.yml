@@ -49,7 +49,7 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-  qmq2mqtt:
+  mqttgateway:
     image: rqure/mqttgateway:v1.2.1
     environment:
       - QMQ_LOG_LEVEL=0
