@@ -10,17 +10,17 @@ services:
       mode: replicated
       replicas: 1
   clock:
-    image: rqure/clock:v2.2.1
+    image: rqure/clock:v2.2.2
     deploy:
       mode: replicated
       replicas: 1
   audio-player:
-    image: rqure/audio-player:v1.2.2
+    image: rqure/audio-player:v1.2.3
     deploy:
       mode: replicated
       replicas: 1
   prayer:
-    image: rqure/adhan:v2.2.2
+    image: rqure/adhan:v2.2.3
     deploy:
       mode: replicated
       replicas: 1
@@ -50,21 +50,21 @@ services:
       mode: replicated
       replicas: 1
   mqttgateway:
-    image: rqure/mqttgateway:v1.2.1
+    image: rqure/mqttgateway:v1.2.2
     environment:
       - QMQ_LOG_LEVEL=0
     deploy:
       mode: replicated
       replicas: 1
   garage:
-    image: rqure/garage:v1.2.1
+    image: rqure/garage:v1.2.2
     deploy:
       mode: replicated
       replicas: 1
     ports:
       - 20001:20001
   webgateway:
-    image: rqure/webgateway:v0.0.2
+    image: rqure/webgateway:v0.0.3
     deploy:
       mode: replicated
       replicas: 1
