@@ -64,7 +64,7 @@ services:
     ports:
       - 20001:20001
   webgateway:
-    image: rqure/webgateway:v0.0.3
+    image: rqure/webgateway:v0.0.4
     deploy:
       mode: replicated
       replicas: 1
