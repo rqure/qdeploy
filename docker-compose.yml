@@ -6,38 +6,21 @@ services:
       - ./volumes/qredis/data:/data
     ports:
       - 6379:6379
-    deploy:
-      mode: replicated
-      replicas: 1
   clock:
     image: rqure/clock:v2.2.2
-    deploy:
-      mode: replicated
-      replicas: 1
   audio-player:
     image: rqure/audio-player:v1.2.3
-    deploy:
-      mode: replicated
-      replicas: 1
   prayer:
     image: rqure/adhan:v2.2.3
-    deploy:
-      mode: replicated
-      replicas: 1
   dmm:
     image: rqure/dmm:v1.0.0
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    deploy:
-      mode: global
   mosquitto:
     image: rqure/mosquitto:v1.0.0
     ports:
       - 1883:1883
       - 9001:9001
-    deploy:
-      mode: replicated
-      replicas: 1
   zigbee2mqtt:
     image: rqure/zigbee2mqtt:v1.1.0
     volumes:
@@ -46,28 +29,16 @@ services:
       - ./volumes/qzigbee2mqtt:/app/data
     ports:
       - 8080:8080
-    deploy:
-      mode: replicated
-      replicas: 1
   mqttgateway:
     image: rqure/mqttgateway:v1.2.2
     environment:
       - QMQ_LOG_LEVEL=0
-    deploy:
-      mode: replicated
-      replicas: 1
   garage:
     image: rqure/garage:v1.2.2
-    deploy:
-      mode: replicated
-      replicas: 1
     ports:
       - 20001:20001
   webgateway:
     image: rqure/webgateway:v0.0.4
-    deploy:
-      mode: replicated
-      replicas: 1
     ports:
       - 20000:20000
   duckdns:
