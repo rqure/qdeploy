@@ -2,27 +2,34 @@ version: "3.3"
 services:
   redis:
     image: redis:alpine
+    restart: always
     volumes:
       - ./volumes/qredis/data:/data
     ports:
       - 6379:6379
   clock:
     image: rqure/clock:v2.2.2
+    restart: always
   audio-player:
     image: rqure/audio-player:v1.2.3
+    restart: always
   prayer:
     image: rqure/adhan:v2.2.3
+    restart: always
   dmm:
     image: rqure/dmm:v1.0.0
+    restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   mosquitto:
     image: rqure/mosquitto:v1.0.0
+    restart: always
     ports:
       - 1883:1883
       - 9001:9001
   zigbee2mqtt:
     image: rqure/zigbee2mqtt:v1.1.0
+    restart: always
     volumes:
       - /run/udev:/run/udev:ro
       - /dev/ttyUSB0:/dev/ttyACM0
@@ -31,18 +38,22 @@ services:
       - 8080:8080
   mqttgateway:
     image: rqure/mqttgateway:v1.2.2
+    restart: always
     environment:
       - QMQ_LOG_LEVEL=0
   garage:
     image: rqure/garage:v1.2.2
+    restart: always
     ports:
       - 20001:20001
   webgateway:
     image: rqure/webgateway:v0.0.4
+    restart: always
     ports:
       - 20000:20000
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
+    restart: always
     volumes:
       - ./volumes/duckdns:/config
     environment:
@@ -50,6 +61,7 @@ services:
       - TOKEN=${DUCKDNS_TOKEN}
   wireguard:
     image: ghcr.io/wg-easy/wg-easy
+    restart: always
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
@@ -67,6 +79,7 @@ services:
       - net.ipv4.ip_forward=1
   dozzle:
     image: amir20/dozzle:latest
+    restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
