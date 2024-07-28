@@ -1,1 +1,1 @@
-docker stack rm qservice
+docker-compose down -v
