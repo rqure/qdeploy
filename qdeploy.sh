@@ -27,5 +27,4 @@ fi
 
 mkdir -p volumes/qredis/data/
 
-# Deploy the stack
-docker stack deploy --compose-file=docker-compose.yml qservice
+docker-compose up -d
