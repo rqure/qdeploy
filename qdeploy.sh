@@ -27,6 +27,11 @@ fi
 
 mkdir -p volumes/qredis/data/
 
+mkdir -p volumes/qpihole/etc-dnsmasq.d/
+cat <<EOF > volumes/qpihole/etc-dnsmasq.d/99-custom.conf
+
+EOF
+
 # Determine network details
 export NETWORK_INTERFACE=$(ip route | grep default | awk '{print $5}')
 export SUBNET=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}' | awk -F'.' '{print $1"."$2"."$3"}' )
@@ -121,6 +126,26 @@ services:
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      qnet:
+        ipv4_address: ${SUBNET}.13
+  pihole:
+    image: pihole/pihole:latest
+    environment:
+      TZ: 'America/Toronto'
+      WEBPASSWORD: 'yourpassword'
+    volumes:
+      - './etc-pihole/:/etc/pihole/'
+      - './etc-dnsmasq.d/:/etc/dnsmasq.d/'
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "80:80/tcp"
+    cap_add:
+      - NET_ADMIN
+    networks:
+      qnet:
+        ipv4_address: ${SUBNET}.14
 networks:
   qnet:
     driver: macvlan
