@@ -58,23 +58,35 @@ services:
     restart: always
     volumes:
       - ./volumes/qredis/data:/data
+    networks:
+      - qnet
   clock:
     image: rqure/clock:v2.2.2
     restart: always
+    networks:
+      - qnet
   audio-player:
     image: rqure/audio-player:v1.2.3
     restart: always
+    networks:
+      - qnet
   prayer:
     image: rqure/adhan:v2.2.3
     restart: always
+    networks:
+      - qnet
   dmm:
     image: rqure/dmm:v1.0.0
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - qnet
   mosquitto:
     image: rqure/mosquitto:v1.0.0
     restart: always
+    networks:
+      - qnet
   zigbee2mqtt:
     image: rqure/zigbee2mqtt:v1.1.0
     restart: always
@@ -90,6 +102,8 @@ services:
     restart: always
     environment:
       - QMQ_LOG_LEVEL=0
+    networks:
+      - qnet
   garage:
     image: rqure/garage:v1.2.2
     restart: always
@@ -110,6 +124,8 @@ services:
     environment:
       - SUBDOMAINS=${DUCKDNS_SUBDOMAINS}
       - TOKEN=${DUCKDNS_TOKEN}
+    networks:
+      - qnet
   wireguard:
     image: ghcr.io/wg-easy/wg-easy
     restart: always
@@ -128,6 +144,8 @@ services:
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
       - net.ipv4.ip_forward=1
+    networks:
+      - qnet
   dozzle:
     image: amir20/dozzle:latest
     restart: always
