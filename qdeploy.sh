@@ -164,5 +164,4 @@ networks:
     
 EOF
 
-cat docker-compose.yml
-# docker-compose up -d
+docker-compose up -d
