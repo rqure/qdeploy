@@ -17,7 +17,7 @@ export WIREGUARD_SERVERURL=$(cat ~/.wireguard.serverurl)
 
 # Determine network details
 export NETWORK_INTERFACE=$(ip route | grep default | awk '{print $5}')
-export SUBNET=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}' | awk -F'.' '{print $1"."$2"."$3"}' )
+export SUBNET=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}' | awk -F'.' '{print $1"."$2"."$3}' )
 export GATEWAY=$(ip route | grep default | awk '{print $3}')
 export IPRANGE=$(echo $SUBNET".0/24")
 
