@@ -1,4 +1,4 @@
-# Set environment)
+# Set environment
 if [ ! -f ~/.duckdns.subdomains ]; then
     touch ~/.duckdns.subdomains
 fi
@@ -15,6 +15,17 @@ export DUCKDNS_SUBDOMAINS=$(cat ~/.duckdns.subdomains)
 export DUCKDNS_TOKEN=$(cat ~/.duckdns.token)
 export WIREGUARD_SERVERURL=$(cat ~/.wireguard.serverurl)
 
+# Determine network details
+export NETWORK_INTERFACE=$(ip route | grep default | awk '{print $5}')
+export SUBNET=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}' | awk -F'.' '{print $1"."$2"."$3"}' )
+export GATEWAY=$(ip route | grep default | awk '{print $3}')
+export IPRANGE=$(echo $SUBNET".0/24")
+
+echo "Using network interface: $NETWORK_INTERFACE"
+echo "Using subnet: $SUBNET"
+echo "Using gateway: $GATEWAY"
+echo "Using IP range: $IPRANGE"
+
 # Create volumes for config and data
 mkdir -p volumes/duckdns/
 
@@ -28,20 +39,16 @@ fi
 mkdir -p volumes/qredis/data/
 
 mkdir -p volumes/qpihole/etc-dnsmasq.d/
-cat <<EOF > volumes/qpihole/etc-dnsmasq.d/99-custom.conf
-
+mkdir -p volumes/qpihole/etc-pihole/
+if [ ! -f volumes/qpihole/etc-dnsmasq.d/99-custom.conf ]; then
+    cat <<EOF > volumes/qpihole/etc-dnsmasq.d/99-custom.conf
+address=/z2m.home/${SUBNET}.10
+address=/garage.home/${SUBNET}.11
+address=/database.home/${SUBNET}.12
+address=/logs.home/${SUBNET}.13
+address=/pihole.home/${SUBNET}.14
 EOF
-
-# Determine network details
-export NETWORK_INTERFACE=$(ip route | grep default | awk '{print $5}')
-export SUBNET=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}' | awk -F'.' '{print $1"."$2"."$3"}' )
-export GATEWAY=$(ip route | grep default | awk '{print $3}')
-export IPRANGE=$(echo $SUBNET".0/24")
-
-echo "Using network interface: $NETWORK_INTERFACE"
-echo "Using subnet: $SUBNET"
-echo "Using gateway: $GATEWAY"
-echo "Using IP range: $IPRANGE"
+fi
 
 cat <<EOF > docker-compose.yml
 version: "3.3"
@@ -131,18 +138,17 @@ services:
         ipv4_address: ${SUBNET}.13
   pihole:
     image: pihole/pihole:latest
+    restart: always
     environment:
-      TZ: 'America/Toronto'
-      WEBPASSWORD: 'yourpassword'
+      TZ: 'America/Edmonton'
+      WEBPASSWORD: 'rqure'
     volumes:
-      - './etc-pihole/:/etc/pihole/'
-      - './etc-dnsmasq.d/:/etc/dnsmasq.d/'
+      - './volumes/qpihole/etc-pihole/:/etc/pihole/'
+      - './volumes/qpihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
     ports:
       - "53:53/tcp"
       - "53:53/udp"
       - "80:80/tcp"
-    cap_add:
-      - NET_ADMIN
     networks:
       qnet:
         ipv4_address: ${SUBNET}.14
@@ -158,4 +164,5 @@ networks:
     
 EOF
 
+cat docker-compose.yml
 # docker-compose up -d
