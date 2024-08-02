@@ -76,15 +76,17 @@ mkdir -p volumes/qredis/data/
 
 mkdir -p volumes/qpihole/etc-dnsmasq.d/
 mkdir -p volumes/qpihole/etc-pihole/
-if [ ! -f volumes/qpihole/etc-dnsmasq.d/99-custom.conf ]; then
-    cat <<EOF > volumes/qpihole/etc-dnsmasq.d/99-custom.conf
-address=/qserver.home/${HOST_IP}
-address=/qserver.home/${HOST_IPv6}
+if [ ! -f volumes/qpihole/etc-pihole/custom.list ]; then
+    echo "${HOST_IP} qserver.home" > volumes/qpihole/etc-pihole/custom.list
+fi
+
+if [ ! -f volumes/qpihole/etc-dnsmasq.d/05-pihole-custom-cname.conf ]; then
+    cat <<EOF > volumes/qnginx/nginx.conf
 cname=logs.home,qserver.home
+cname=garage.home,qserver.home
 cname=z2m.home,qserver.home
 cname=database.home,qserver.home
-cname=garage.home,qserver.home
-EOF
+    EOF
 fi
 
 mkdir -p volumes/qnginx/conf.d/
@@ -128,10 +130,10 @@ server {
 
     location / {
         proxy_pass http://dozzle:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 }
 
@@ -141,10 +143,10 @@ server {
 
     location / {
         proxy_pass http://zigbee2mqtt:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 }
 
@@ -154,10 +156,10 @@ server {
 
     location / {
         proxy_pass http://webgateway:20000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 }
 
@@ -168,9 +170,9 @@ server {
     location / {
         proxy_pass http://garage:20001;
         proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 }
 EOF
@@ -219,6 +221,8 @@ services:
   webgateway:
     image: rqure/webgateway:v0.0.4
     restart: always
+    ports:
+      - 20000:20000
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
     restart: always
