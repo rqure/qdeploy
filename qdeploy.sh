@@ -11,6 +11,34 @@ if [ ! -f ~/.wireguard.serverurl ]; then
     touch ~/.wireguard.serverurl
 fi
 
+if [ ! -f ~/.qnet.host.v4 ]; then
+    export HOST_IP=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}')
+    echo "$HOST_IP" > ~/.qnet.pihole.v4
+fi
+
+if [ ! -f ~/.qnet.host.v6 ]; then
+    export HOST_IPv6=$(ip -6 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet6\s)[0-9a-fA-F:]+/\d+' | grep '^fe' | awk -F'/' '{print $1}')
+    echo "$HOST_IPv6" > ~/.qnet.pihole.v6
+fi
+
+if [ ! -f ~/.qnet.pihole.v4 ]; then
+    echo "192.168.1.10" > ~/.qnet.pihole.v4
+fi
+
+if [ ! -f ~/.qnet.pihole.v6 ]; then
+    echo "fe80::10" > ~/.qnet.pihole.v6
+fi
+
+if [ ! -f ~/.qnet.gateway.v4 ]; then
+    export GATEWAY=$(ip route | grep default | awk '{print $3}')
+    echo "$GATEWAY" > ~/.qnet.gateway.v4
+fi
+
+if [ ! -f ~/.qnet.gateway.v6 ]; then
+    export GATEWAYv6=$(ip -6 route | grep default | awk '{print $3}' | grep '^fe')
+    echo "$GATEWAYv6" > ~/.qnet.gateway.v6
+fi
+
 if [ ! -f ~/.qnet.subnet.v4 ]; then
     echo "192.168.1.0/24" > ~/.qnet.subnet.v4
 fi
@@ -25,12 +53,14 @@ export WIREGUARD_SERVERURL=$(cat ~/.wireguard.serverurl)
 
 # Determine network details
 export NETWORK_INTERFACE=$(ip route | grep default | awk '{print $5}')
-export HOST_IP=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}')
-export HOST_IPv6=$(ip -6 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet6\s)[0-9a-fA-F:]+/\d+' | grep '^fe' | awk -F'/' '{print $1}')
-export GATEWAY=$(ip route | grep default | awk '{print $3}')
-export GATEWAYv6=$(ip -6 route | grep default | awk '{print $3}' | grep '^fe')
+export HOST_IP=$(cat ~/.qnet.host.v4)
+export HOST_IPv6=$(cat ~/.qnet.host.v6)
+export GATEWAY=$(cat ~/.qnet.gateway.v4)
+export GATEWAYv6=$(cat ~/.qnet.gateway.v6)
 export SUBNET=$(cat ~/.qnet.subnet.v4)
 export SUBNETv6=$(cat ~/.qnet.subnet.v6)
+export PIHOLEv4=$(cat ~/.qnet.pihole.v4)
+export PIHOLEV6=$(cat ~/.qnet.pihole.v6)
 
 # Create volumes for config and data
 mkdir -p volumes/duckdns/
@@ -229,9 +259,10 @@ services:
     volumes:
       - './volumes/qpihole/etc-pihole/:/etc/pihole/'
       - './volumes/qpihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
-    mac_address: 02:42:c0:a8:84:22
     networks:
-      - qnet
+      qnet:
+        ipv4_address: ${PIHOLEv4}
+        ipv6_address: ${PIHOLEv6}
   nginx:
     image: nginx:latest
     ports:
@@ -241,6 +272,7 @@ services:
       - ./volumes/qnginx/nginx.conf:/etc/nginx/nginx.conf
 networks:
   qnet:
+    enable_ipv6: true
     driver: macvlan
     driver_opts:
       parent: ${NETWORK_INTERFACE}
