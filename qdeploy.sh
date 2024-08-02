@@ -25,7 +25,7 @@ export IPRANGE=$(echo $SUBNET".0/24")
 # Determine IPv6 network details
 export HOST_IPv6=$(ip -6 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet6\s)[0-9a-fA-F:]+/\d+' | awk -F'/' '{print $1}' | grep '^fe')
 export SUBNETv6=$(echo $HOST_IPv6 | awk -F':' '{print $1":"$2":"$3":"$4}' )
-export GATEWAYv6=$(ip -6 route | grep default | awk '{print $3}' | grep '^fe80')
+export GATEWAYv6=$(ip -6 route | grep default | awk '{print $3}' | grep '^fe')
 export IPRANGEv6=$(echo $SUBNETv6"::/64")
 
 echo "Using network interface: $NETWORK_INTERFACE"
