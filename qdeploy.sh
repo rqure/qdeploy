@@ -240,6 +240,7 @@ services:
     networks:
       qnet:
         ipv4_address: ${SUBNET}.10
+        ipv6_address: ${SUBNETv6}:10
   nginx:
     image: nginx:latest
     ports:
