@@ -81,7 +81,7 @@ if [ ! -f volumes/qpihole/etc-pihole/custom.list ]; then
 fi
 
 if [ ! -f volumes/qpihole/etc-dnsmasq.d/05-pihole-custom-cname.conf ]; then
-    cat <<EOF > volumes/qnginx/nginx.conf
+    cat <<EOF > volumes/qpihole/etc-dnsmasq.d/05-pihole-custom-cname.conf
 cname=logs.home,qserver.home
 cname=garage.home,qserver.home
 cname=z2m.home,qserver.home
