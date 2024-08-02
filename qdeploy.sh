@@ -24,9 +24,8 @@ export IPRANGE=$(echo $SUBNET".0/24")
 
 # Determine IPv6 network details
 export HOST_IPv6=$(ip -6 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet6\s)[0-9a-fA-F:]+/\d+' | awk -F'/' '{print $1}' | grep '^fe')
-export SUBNETv6=$(echo $HOST_IPv6 | awk -F':' '{print $1":"$2":"$3":"$4}' )
 export GATEWAYv6=$(ip -6 route | grep default | awk '{print $3}' | grep '^fe')
-export IPRANGEv6=$(echo $SUBNETv6"::/64")
+export IPRANGEv6=$(echo $HOST_IPv6"/64")
 
 echo "Using network interface: $NETWORK_INTERFACE"
 echo "Using host IP: $HOST_IP"
@@ -35,7 +34,6 @@ echo "Using gateway: $GATEWAY"
 echo "Using IP range: $IPRANGE"
 echo ""
 echo "Using host IPv6: $HOST_IPv6"
-echo "Using subnet IPv6: $SUBNETv6"
 echo "Using gateway IPv6: $GATEWAYv6"
 echo "Using IP range IPv6: $IPRANGEv6"
 echo ""
@@ -240,7 +238,6 @@ services:
     networks:
       qnet:
         ipv4_address: ${SUBNET}.10
-        ipv6_address: ${SUBNETv6}:10
   nginx:
     image: nginx:latest
     ports:
