@@ -60,7 +60,7 @@ export GATEWAYv6=$(cat ~/.qnet.gateway.v6)
 export SUBNET=$(cat ~/.qnet.subnet.v4)
 export SUBNETv6=$(cat ~/.qnet.subnet.v6)
 export PIHOLEv4=$(cat ~/.qnet.pihole.v4)
-export PIHOLEV6=$(cat ~/.qnet.pihole.v6)
+export PIHOLEv6=$(cat ~/.qnet.pihole.v6)
 
 # Create volumes for config and data
 mkdir -p volumes/duckdns/
