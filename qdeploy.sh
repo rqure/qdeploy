@@ -22,11 +22,23 @@ export SUBNET=$(echo $HOST_IP | awk -F'.' '{print $1"."$2"."$3}' )
 export GATEWAY=$(ip route | grep default | awk '{print $3}')
 export IPRANGE=$(echo $SUBNET".0/24")
 
+# Determine IPv6 network details
+export HOST_IPv6=$(ip -6 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet6\s)[0-9a-fA-F:]+/\d+' | grep -v '^fe80' | awk -F'/' '{print $1}')
+export SUBNETv6=$(echo $HOST_IPv6 | awk -F':' '{print $1":"$2":"$3":"$4}' )
+export GATEWAYv6=$(ip -6 route | grep default | awk '{print $3}')
+export IPRANGEv6=$(echo $SUBNETv6"::/64")
+
 echo "Using network interface: $NETWORK_INTERFACE"
 echo "Using host IP: $HOST_IP"
 echo "Using subnet: $SUBNET"
 echo "Using gateway: $GATEWAY"
 echo "Using IP range: $IPRANGE"
+echo ""
+echo "Using host IPv6: $HOST_IPv6"
+echo "Using subnet IPv6: $SUBNETv6"
+echo "Using gateway IPv6: $GATEWAYv6"
+echo "Using IP range IPv6: $IPRANGEv6"
+echo ""
 
 # Create volumes for config and data
 mkdir -p volumes/duckdns/
@@ -45,6 +57,7 @@ mkdir -p volumes/qpihole/etc-pihole/
 if [ ! -f volumes/qpihole/etc-dnsmasq.d/99-custom.conf ]; then
     cat <<EOF > volumes/qpihole/etc-dnsmasq.d/99-custom.conf
 address=/qserver.home/${HOST_IP}
+address=/qserver.home/${HOST_IPv6}
 cname=logs.home,qserver.home
 cname=z2m.home,qserver.home
 cname=database.home,qserver.home
@@ -227,6 +240,7 @@ services:
     networks:
       qnet:
         ipv4_address: ${SUBNET}.10
+        ipv6_address: ${SUBNETv6}::10
   nginx:
     image: nginx:latest
     ports:
@@ -243,6 +257,8 @@ networks:
       config:
         - subnet: ${IPRANGE}
           gateway: ${GATEWAY}
+        - subnet: ${IPRANGEv6}
+          gateway: ${GATEWAYv6}
 EOF
 
 docker compose up -d
