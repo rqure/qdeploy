@@ -238,9 +238,9 @@ services:
     volumes:
       - './volumes/qpihole/etc-pihole/:/etc/pihole/'
       - './volumes/qpihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
-    ports:
-      - "53:53/tcp"
-      - "53:53/udp"
+    networks:
+      qnet:
+        ipv4_address: ${SUBNET}.10
   nginx:
     image: nginx:latest
     ports:
@@ -248,6 +248,15 @@ services:
     volumes:
       - ./volumes/qnginx/conf.d:/etc/nginx/conf.d
       - ./volumes/qnginx/nginx.conf:/etc/nginx/nginx.conf
+networks:
+  qnet:
+    driver: macvlan
+    driver_opts:
+      parent: ${NETWORK_INTERFACE}
+    ipam:
+      config:
+        - subnet: ${IPRANGE}
+          gateway: ${GATEWAY}
 EOF
 
 docker compose up -d
