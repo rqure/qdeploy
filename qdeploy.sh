@@ -17,25 +17,23 @@ export WIREGUARD_SERVERURL=$(cat ~/.wireguard.serverurl)
 
 # Determine network details
 export NETWORK_INTERFACE=$(ip route | grep default | awk '{print $5}')
-export HOST_IP=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}')
-export SUBNET=$(echo $HOST_IP | awk -F'.' '{print $1"."$2"."$3}' )
+export SUBNET=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+')
+export HOST_IP=$(echo $SUBNET | awk -F'/' '{print $1}')
 export GATEWAY=$(ip route | grep default | awk '{print $3}')
-export IPRANGE=$(echo $SUBNET".0/24")
 
 # Determine IPv6 network details
-export HOST_IPv6=$(ip -6 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet6\s)[0-9a-fA-F:]+/\d+' | awk -F'/' '{print $1}' | grep '^fe')
+export SUBNETv6=$(ip -6 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet6\s)[0-9a-fA-F:]+/\d+' | grep '^fe')
+export HOST_IPv6=$(echo $SUBNETv6 | awk -F'/' '{print $1}')
 export GATEWAYv6=$(ip -6 route | grep default | awk '{print $3}' | grep '^fe')
-export IPRANGEv6=$(echo $HOST_IPv6"/64")
 
 echo "Using network interface: $NETWORK_INTERFACE"
 echo "Using host IP: $HOST_IP"
 echo "Using subnet: $SUBNET"
 echo "Using gateway: $GATEWAY"
-echo "Using IP range: $IPRANGE"
 echo ""
 echo "Using host IPv6: $HOST_IPv6"
+echo "Using subnet: $SUBNETv6"
 echo "Using gateway IPv6: $GATEWAYv6"
-echo "Using IP range IPv6: $IPRANGEv6"
 echo ""
 
 # Create volumes for config and data
@@ -236,8 +234,7 @@ services:
       - './volumes/qpihole/etc-pihole/:/etc/pihole/'
       - './volumes/qpihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
     networks:
-      qnet:
-        ipv4_address: ${SUBNET}.10
+      - qnet
   nginx:
     image: nginx:latest
     ports:
@@ -252,9 +249,9 @@ networks:
       parent: ${NETWORK_INTERFACE}
     ipam:
       config:
-        - subnet: ${IPRANGE}
+        - subnet: ${SUBNET}
           gateway: ${GATEWAY}
-        - subnet: ${IPRANGEv6}
+        - subnet: ${SUBNETv6}
           gateway: ${GATEWAYv6}
 EOF
 
