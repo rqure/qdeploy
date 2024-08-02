@@ -77,15 +77,15 @@ mkdir -p volumes/qredis/data/
 mkdir -p volumes/qpihole/etc-dnsmasq.d/
 mkdir -p volumes/qpihole/etc-pihole/
 if [ ! -f volumes/qpihole/etc-pihole/custom.list ]; then
-    echo "${HOST_IP} qserver.home" > volumes/qpihole/etc-pihole/custom.list
+    echo "${HOST_IP} qserver.local" > volumes/qpihole/etc-pihole/custom.list
 fi
 
 if [ ! -f volumes/qpihole/etc-dnsmasq.d/05-pihole-custom-cname.conf ]; then
     cat <<EOF > volumes/qpihole/etc-dnsmasq.d/05-pihole-custom-cname.conf
-cname=logs.home,qserver.home
-cname=garage.home,qserver.home
-cname=z2m.home,qserver.home
-cname=database.home,qserver.home
+cname=logs.local,qserver.local
+cname=garage.local,qserver.local
+cname=z2m.local,qserver.local
+cname=database.local,qserver.local
 EOF
 fi
 
@@ -126,7 +126,7 @@ if [ ! -f volumes/qnginx/conf.d/default.conf ]; then
     cat <<EOF > volumes/qnginx/conf.d/default.conf
 server {
     listen 80;
-    server_name logs.home;
+    server_name logs.local;
 
     location / {
         proxy_pass http://dozzle:8080;
@@ -134,12 +134,14 @@ server {
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
     }
 }
 
 server {
     listen 80;
-    server_name z2m.home;
+    server_name z2m.local;
 
     location / {
         proxy_pass http://zigbee2mqtt:8080;
@@ -147,12 +149,14 @@ server {
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
     }
 }
 
 server {
     listen 80;
-    server_name database.home;
+    server_name database.local;
 
     location / {
         proxy_pass http://webgateway:20000;
@@ -160,12 +164,14 @@ server {
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
     }
 }
 
 server {
     listen 80;
-    server_name garage.home;
+    server_name garage.local;
 
     location / {
         proxy_pass http://garage:20001;
@@ -173,6 +179,8 @@ server {
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
     }
 }
 EOF
