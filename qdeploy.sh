@@ -13,12 +13,12 @@ fi
 
 if [ ! -f ~/.qnet.host.v4 ]; then
     export HOST_IP=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}')
-    echo "$HOST_IP" > ~/.qnet.pihole.v4
+    echo "$HOST_IP" > ~/.qnet.host.v4
 fi
 
 if [ ! -f ~/.qnet.host.v6 ]; then
     export HOST_IPv6=$(ip -6 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet6\s)[0-9a-fA-F:]+/\d+' | grep '^fe' | awk -F'/' '{print $1}')
-    echo "$HOST_IPv6" > ~/.qnet.pihole.v6
+    echo "$HOST_IPv6" > ~/.qnet.host.v6
 fi
 
 if [ ! -f ~/.qnet.pihole.v4 ]; then
