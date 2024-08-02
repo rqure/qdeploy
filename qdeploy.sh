@@ -183,6 +183,21 @@ server {
         proxy_set_header Connection "upgrade";
     }
 }
+
+server {
+    listen 20000;
+    server_name garage.local;
+
+    location / {
+        proxy_pass http://webgateway:20000;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
 EOF
 fi
 
@@ -229,8 +244,6 @@ services:
   webgateway:
     image: rqure/webgateway:v0.0.4
     restart: always
-    ports:
-      - 20000:20000
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
     restart: always
@@ -279,6 +292,7 @@ services:
     image: nginx:latest
     ports:
       - "80:80"
+      - "20000:20000"
     volumes:
       - ./volumes/qnginx/conf.d:/etc/nginx/conf.d
       - ./volumes/qnginx/nginx.conf:/etc/nginx/nginx.conf
