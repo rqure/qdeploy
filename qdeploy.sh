@@ -86,7 +86,7 @@ cname=logs.home,qserver.home
 cname=garage.home,qserver.home
 cname=z2m.home,qserver.home
 cname=database.home,qserver.home
-    EOF
+EOF
 fi
 
 mkdir -p volumes/qnginx/conf.d/
