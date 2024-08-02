@@ -17,11 +17,13 @@ export WIREGUARD_SERVERURL=$(cat ~/.wireguard.serverurl)
 
 # Determine network details
 export NETWORK_INTERFACE=$(ip route | grep default | awk '{print $5}')
-export SUBNET=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}' | awk -F'.' '{print $1"."$2"."$3}' )
+export HOST_IP=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}')
+export SUBNET=$(echo $HOST_IP | awk -F'.' '{print $1"."$2"."$3}' )
 export GATEWAY=$(ip route | grep default | awk '{print $3}')
 export IPRANGE=$(echo $SUBNET".0/24")
 
 echo "Using network interface: $NETWORK_INTERFACE"
+echo "Using host IP: $HOST_IP"
 echo "Using subnet: $SUBNET"
 echo "Using gateway: $GATEWAY"
 echo "Using IP range: $IPRANGE"
@@ -42,11 +44,100 @@ mkdir -p volumes/qpihole/etc-dnsmasq.d/
 mkdir -p volumes/qpihole/etc-pihole/
 if [ ! -f volumes/qpihole/etc-dnsmasq.d/99-custom.conf ]; then
     cat <<EOF > volumes/qpihole/etc-dnsmasq.d/99-custom.conf
-address=/z2m.home/${SUBNET}.10
-address=/garage.home/${SUBNET}.11
-address=/database.home/${SUBNET}.12
-address=/logs.home/${SUBNET}.13
-address=/pihole.home/${SUBNET}.14
+address=/qserver.home/${HOST_IP}
+cname=logs.home,qserver.home
+cname=z2m.home,qserver.home
+cname=database.home,qserver.home
+cname=garage.home,qserver.home
+EOF
+fi
+
+mkdir -p volumes/qnginx/conf.d/
+if [ ! -f volumes/qnginx/nginx.conf ]; then
+    cat <<EOF > volumes/qnginx/nginx.conf
+user  nginx;
+worker_processes  auto;
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    tcp_nopush      on;
+    tcp_nodelay     on;
+    keepalive_timeout  65;
+    types_hash_max_size 2048;
+
+    include /etc/nginx/conf.d/*.conf;
+}
+EOF
+fi
+
+if [ ! -f volumes/qnginx/conf.d/default.conf ]; then
+    cat <<EOF > volumes/qnginx/conf.d/default.conf
+server {
+    listen 80;
+    server_name logs.home;
+
+    location / {
+        proxy_pass http://dozzle:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+server {
+    listen 80;
+    server_name z2m.home;
+
+    location / {
+        proxy_pass http://zigbee2mqtt:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+server {
+    listen 80;
+    server_name database.home;
+
+    location / {
+        proxy_pass http://webgateway:20000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+server {
+    listen 80;
+    server_name garage.home;
+
+    location / {
+        proxy_pass http://garage:20001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
 EOF
 fi
 
@@ -58,35 +149,23 @@ services:
     restart: always
     volumes:
       - ./volumes/qredis/data:/data
-    networks:
-      - qnet
   clock:
     image: rqure/clock:v2.2.2
     restart: always
-    networks:
-      - qnet
   audio-player:
     image: rqure/audio-player:v1.2.3
     restart: always
-    networks:
-      - qnet
   prayer:
     image: rqure/adhan:v2.2.3
     restart: always
-    networks:
-      - qnet
   dmm:
     image: rqure/dmm:v1.0.0
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - qnet
   mosquitto:
     image: rqure/mosquitto:v1.0.0
     restart: always
-    networks:
-      - qnet
   zigbee2mqtt:
     image: rqure/zigbee2mqtt:v1.1.0
     restart: always
@@ -94,28 +173,17 @@ services:
       - /run/udev:/run/udev:ro
       - /dev/ttyUSB0:/dev/ttyACM0
       - ./volumes/qzigbee2mqtt:/app/data
-    networks:
-      qnet:
-        ipv4_address: ${SUBNET}.10
   mqttgateway:
     image: rqure/mqttgateway:v1.2.2
     restart: always
     environment:
       - QMQ_LOG_LEVEL=0
-    networks:
-      - qnet
   garage:
     image: rqure/garage:v1.2.2
     restart: always
-    networks:
-      qnet:
-        ipv4_address: ${SUBNET}.11
   webgateway:
     image: rqure/webgateway:v0.0.4
     restart: always
-    networks:
-      qnet:
-        ipv4_address: ${SUBNET}.12
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
     restart: always
@@ -124,8 +192,6 @@ services:
     environment:
       - SUBDOMAINS=${DUCKDNS_SUBDOMAINS}
       - TOKEN=${DUCKDNS_TOKEN}
-    networks:
-      - qnet
   wireguard:
     image: ghcr.io/wg-easy/wg-easy
     restart: always
@@ -144,16 +210,11 @@ services:
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
       - net.ipv4.ip_forward=1
-    networks:
-      - qnet
   dozzle:
     image: amir20/dozzle:latest
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      qnet:
-        ipv4_address: ${SUBNET}.13
   pihole:
     image: pihole/pihole:latest
     restart: always
@@ -167,18 +228,6 @@ services:
       - "53:53/tcp"
       - "53:53/udp"
       - "80:80/tcp"
-    networks:
-      qnet:
-        ipv4_address: ${SUBNET}.14
-networks:
-  qnet:
-    driver: macvlan
-    driver_opts:
-      parent: ${NETWORK_INTERFACE}
-    ipam:
-      config:
-        - subnet: ${IPRANGE}
-          gateway: ${GATEWAY}
     
 EOF
 
