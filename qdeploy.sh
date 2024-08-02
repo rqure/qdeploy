@@ -239,10 +239,10 @@ services:
     environment:
       - QMQ_LOG_LEVEL=0
   garage:
-    image: rqure/garage:v1.2.2
+    image: rqure/garage:v1.2.3
     restart: always
   webgateway:
-    image: rqure/webgateway:v0.0.4
+    image: rqure/webgateway:v0.0.5
     restart: always
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
