@@ -11,30 +11,26 @@ if [ ! -f ~/.wireguard.serverurl ]; then
     touch ~/.wireguard.serverurl
 fi
 
+if [ ! -f ~/.qnet.subnet.v4 ]; then
+    echo "192.168.1.0/24" > ~/.qnet.subnet.v4
+fi
+
+if [ ! -f ~/.qnet.subnet.v6 ]; then
+    echo "fe80::/64" > ~/.qnet.subnet.v6
+fi
+
 export DUCKDNS_SUBDOMAINS=$(cat ~/.duckdns.subdomains)
 export DUCKDNS_TOKEN=$(cat ~/.duckdns.token)
 export WIREGUARD_SERVERURL=$(cat ~/.wireguard.serverurl)
 
 # Determine network details
 export NETWORK_INTERFACE=$(ip route | grep default | awk '{print $5}')
-export SUBNET=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+')
-export HOST_IP=$(echo $SUBNET | awk -F'/' '{print $1}')
+export HOST_IP=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}')
+export HOST_IPv6=$(ip -6 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet6\s)[0-9a-fA-F:]+/\d+' | grep '^fe' | awk -F'/' '{print $1}')
 export GATEWAY=$(ip route | grep default | awk '{print $3}')
-
-# Determine IPv6 network details
-export SUBNETv6=$(ip -6 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet6\s)[0-9a-fA-F:]+/\d+' | grep '^fe')
-export HOST_IPv6=$(echo $SUBNETv6 | awk -F'/' '{print $1}')
 export GATEWAYv6=$(ip -6 route | grep default | awk '{print $3}' | grep '^fe')
-
-echo "Using network interface: $NETWORK_INTERFACE"
-echo "Using host IP: $HOST_IP"
-echo "Using subnet: $SUBNET"
-echo "Using gateway: $GATEWAY"
-echo ""
-echo "Using host IPv6: $HOST_IPv6"
-echo "Using subnet: $SUBNETv6"
-echo "Using gateway IPv6: $GATEWAYv6"
-echo ""
+export SUBNET=$(cat ~/.qnet.subnet.v4)
+export SUBNETv6=$(cat ~/.qnet.subnet.v6)
 
 # Create volumes for config and data
 mkdir -p volumes/duckdns/
@@ -233,6 +229,7 @@ services:
     volumes:
       - './volumes/qpihole/etc-pihole/:/etc/pihole/'
       - './volumes/qpihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
+    mac_address: 02:42:c0:a8:84:22
     networks:
       - qnet
   nginx:
