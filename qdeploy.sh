@@ -228,7 +228,13 @@ services:
       - "53:53/tcp"
       - "53:53/udp"
       - "80:80/tcp"
-    
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./volumes/qnginx/conf.d:/etc/nginx/conf.d
+      - ./volumes/qnginx/nginx.conf:/etc/nginx/nginx.conf
 EOF
 
 docker compose up -d
