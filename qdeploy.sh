@@ -47,7 +47,6 @@ if [ ! -f volumes/qpihole/etc-dnsmasq.d/99-custom.conf ]; then
 address=/qserver.home/${HOST_IP}
 cname=logs.home,qserver.home
 cname=z2m.home,qserver.home
-cname=pihole.home,qserver.home
 cname=database.home,qserver.home
 cname=garage.home,qserver.home
 EOF
@@ -107,19 +106,6 @@ server {
 
     location / {
         proxy_pass http://zigbee2mqtt:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-
-server {
-    listen 80;
-    server_name pihole.home;
-
-    location / {
-        proxy_pass http://pihole:80;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
