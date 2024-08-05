@@ -15,6 +15,9 @@ export DUCKDNS_SUBDOMAINS=$(cat ~/.duckdns.subdomains)
 export DUCKDNS_TOKEN=$(cat ~/.duckdns.token)
 export WIREGUARD_SERVERURL=$(cat ~/.wireguard.serverurl)
 
+export NETWORK_INTERFACE=$(ip route | grep default | awk '{print $5}')
+export HOST_IP=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}')
+
 # Create volumes for config and data
 mkdir -p volumes/duckdns/
 
@@ -30,8 +33,6 @@ mkdir -p volumes/qredis/data/
 mkdir -p volumes/qpihole/etc-dnsmasq.d/
 mkdir -p volumes/qpihole/etc-pihole/
 if [ ! -f volumes/qpihole/etc-pihole/custom.list ]; then
-    export NETWORK_INTERFACE=$(ip route | grep default | awk '{print $5}')
-    export HOST_IP=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}')
     echo "${HOST_IP} qserver.local" > volumes/qpihole/etc-pihole/custom.list
 fi
 
@@ -253,8 +254,8 @@ services:
       TZ: 'America/Edmonton'
       WEBPASSWORD: 'rqure'
     ports:
-      - "53:53/tcp"
-      - "53:53/udp"
+      - "${HOST_IP}53:53/tcp"
+      - "${HOST_IP}:53:53/udp"
     volumes:
       - './volumes/qpihole/etc-pihole/:/etc/pihole/'
       - './volumes/qpihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
