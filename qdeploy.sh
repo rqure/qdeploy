@@ -213,7 +213,7 @@ services:
     image: rqure/clock:v2.2.2
     restart: always
   audio-player:
-    image: rqure/audio-player:v1.2.3
+    image: rqure/audio-player:v1.2.4
     restart: always
   prayer:
     image: rqure/adhan:v2.2.3
