@@ -254,7 +254,7 @@ services:
       TZ: 'America/Edmonton'
       WEBPASSWORD: 'rqure'
     ports:
-      - "${HOST_IP}53:53/tcp"
+      - "${HOST_IP}:53:53/tcp"
       - "${HOST_IP}:53:53/udp"
     volumes:
       - './volumes/qpihole/etc-pihole/:/etc/pihole/'
