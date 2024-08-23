@@ -17,6 +17,7 @@ export WIREGUARD_SERVERURL=$(cat ~/.wireguard.serverurl)
 
 export NETWORK_INTERFACE=$(ip route | grep default | awk '{print $5}')
 export HOST_IP=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}')
+export HOST_IP6=$(ip -6 addr show dev $NETWORK_INTERFACE scope global | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d')
 
 # Create volumes for config and data
 mkdir -p volumes/duckdns/
@@ -256,6 +257,8 @@ services:
     ports:
       - "${HOST_IP}:53:53/tcp"
       - "${HOST_IP}:53:53/udp"
+      - "${HOST_IP6}:53:53/tcp"
+      - "${HOST_IP6}:53:53/udp"
     volumes:
       - './volumes/qpihole/etc-pihole/:/etc/pihole/'
       - './volumes/qpihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
