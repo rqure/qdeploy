@@ -103,9 +103,126 @@ if [ ! -f ~/.qnet.subnet.v6 ]; then
         SUBNET_TMP+="0000:"
     done
     SUBNET_TMP="${SUBNET_TMP%:*}"
+
+    # Function to convert a single hextet to binary
+    hextet_to_bin() {
+        local hextet=$1
+        local bin=""
+        for ((i = 0; i < ${#hextet}; i++)); do
+            local hex_digit=${hextet:i:1}
+            case $hex_digit in
+                0) bin="${bin}0000" ;;
+                1) bin="${bin}0001" ;;
+                2) bin="${bin}0010" ;;
+                3) bin="${bin}0011" ;;
+                4) bin="${bin}0100" ;;
+                5) bin="${bin}0101" ;;
+                6) bin="${bin}0110" ;;
+                7) bin="${bin}0111" ;;
+                8) bin="${bin}1000" ;;
+                9) bin="${bin}1001" ;;
+                a|A) bin="${bin}1010" ;;
+                b|B) bin="${bin}1011" ;;
+                c|C) bin="${bin}1100" ;;
+                d|D) bin="${bin}1101" ;;
+                e|E) bin="${bin}1110" ;;
+                f|F) bin="${bin}1111" ;;
+            esac
+        done
+        echo "$bin"
+    }
+    
+    # Function to convert binary to hexadecimal hextet
+    bin_to_hextet() {
+        local bin=$1
+        local hex=""
+        for ((i = 0; i < 16; i+=4)); do
+            local nibble=${bin:i:4}
+            local hex_digit=$(printf "%x" "$((2#$nibble))")
+            hex="${hex}${hex_digit}"
+        done
+        echo "${hex}"
+    }
+    
+    # Function to convert an IPv6 address to binary representation
+    ipv6_to_bin() {
+        local ipv6=$1
+        local bin=""
+        # Convert each hextet to binary
+        for hextet in $(echo "$ipv6" | sed 's/::/:/g' | tr ':' ' '); do
+            printf -v bin "${bin}$(hextet_to_bin "$hextet")"
+        done
+        echo "$bin"
+    }
+    
+    # Function to find the common prefix length
+    common_prefix_length() {
+        local bin1=$1
+        local bin2=$2
+        local len=${#bin1}
+        local common_len=0
+        for ((i = 0; i < len; i++)); do
+            if [[ ${bin1:i:1} == ${bin2:i:1} ]]; then
+                common_len=$((common_len + 1))
+            else
+                break
+            fi
+        done
+        echo "$common_len"
+    }
+    
+    # Function to compute the subnet prefix
+    compute_subnet() {
+        local addr_bin=$1
+        local prefix_len=$2
+        local mask_bin=""
+        local subnet_bin=""
+    
+        # Create the subnet mask in binary
+        for ((i = 0; i < 128; i++)); do
+            if ((i < prefix_len)); then
+                mask_bin="${mask_bin}1"
+            else
+                mask_bin="${mask_bin}0"
+            fi
+        done
+    
+        # Apply the mask to the address
+        for ((i = 0; i < 128; i++)); do
+            if [[ ${mask_bin:i:1} == "1" ]]; then
+                subnet_bin="${subnet_bin}${addr_bin:i:1}"
+            else
+                subnet_bin="${subnet_bin}0"
+            fi
+        done
+    
+        # Convert binary subnet to hexadecimal hextets
+        local subnet_prefix=""
+        for ((i = 0; i < 128; i+=16)); do
+            local hextet_bin=${subnet_bin:i:16}
+            local hextet_hex=$(bin_to_hextet "$hextet_bin")
+            subnet_prefix="${subnet_prefix}${hextet_hex}:"
+        done
+    
+        # Remove the trailing colon
+        echo "${subnet_prefix%:}"
+    }
+    
+    addr1=$SUBNET_TMP
+    addr2=$(ip -6 route | grep default | awk '{print $3}')
+    
+    # Convert IPv6 addresses to binary
+    bin1=$(ipv6_to_bin "$addr1")
+    bin2=$(ipv6_to_bin "$addr2")
+    
+    # Find the common prefix length
+    prefix_length=$(common_prefix_length "$bin1" "$bin2")
+    
+    # Compute the subnet
+    subnet=$(compute_subnet "$bin1" "$prefix_length")
     
     # Display the subnet with the prefix
-    echo "$SUBNET_TMP/$MASK_TMP" > ~/.qnet.subnet.v6
+    echo "$subnet/$prefix_length" > ~/.qnet.subnet.v6
 fi
 
 if [ ! -f ~/.qnet.pihole.v4 ]; then
