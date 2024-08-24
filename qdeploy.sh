@@ -102,6 +102,7 @@ if [ ! -f ~/.qnet.subnet.v6 ]; then
     for i in $(seq $segments_required 7); do
         SUBNET_TMP+="0000:"
     done
+    SUBNET_TMP="${SUBNET_TMP%:*}"
     
     # Display the subnet with the prefix
     echo "$SUBNET_TMP/$MASK_TMP" > ~/.qnet.subnet.v6
@@ -174,7 +175,7 @@ if [ ! -f ~/.qnet.pihole.v6 ]; then
     done
     
     # Fill remaining segments with zeros if necessary
-    for i in $(seq $segments_required 7); do
+    for i in $(seq $segments_required 6); do
         SUBNET_TMP+="0000:"
     done
     
