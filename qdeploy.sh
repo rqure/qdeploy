@@ -420,8 +420,8 @@ services:
     ports:
       - "${PIHOLEv4}:53:53/tcp"
       - "${PIHOLEv4}:53:53/udp"
-      - "${PIHOLEv6%/*}:53:53/tcp"
-      - "${PIHOLEv6%/*}:53:53/udp"
+      - "[${PIHOLEv6%/*}]:53:53/tcp"
+      - "[${PIHOLEv6%/*}]:53:53/udp"
     volumes:
       - './volumes/qpihole/etc-pihole/:/etc/pihole/'
       - './volumes/qpihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
