@@ -98,7 +98,7 @@ if [ ! -f ~/.qnet.subnet.v6 ]; then
     SUBNET_TMP="${SUBNET_TMP}:"
     
     # Display the subnet with the prefix
-    echo "$SUBNET_TMP/$MASK_TMP" > ~/.qnet.subnet.v6
+    echo "$SUBNET_TMP/$MASK_TMP" > ~/.qnet.subnet.v4
 fi
 
 if [ ! -f ~/.qnet.pihole.v4 ]; then
