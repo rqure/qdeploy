@@ -47,7 +47,7 @@ if [ ! -f ~/.qnet.subnet.v6 ]; then
     
     # Extract the first part according to the prefix length
     SUBNET_TMP=""
-    for i in $(seq 0 $((prefix / 16 - 1))); do
+    for i in $(seq 0 $((MASK_TMP / 16 - 1))); do
         SUBNET_TMP+="${segments[$i]}:"
     done
     
@@ -110,6 +110,8 @@ if [ ! -f ~/.qnet.pihole.v6 ]; then
     IP6_WITH_MASK=$(ip -6 addr show dev $NETWORK_INTERFACE scope global | sed -e 's/^.*inet6 \([^ ]*\/[0-9]*\).*$/\1/;t;d')
     # Extract IP address
     IP6_TMP="${IP6_WITH_MASK%/*}"
+    # Extract mask
+    MASK_TMP="${IP6_WITH_MASK#*/}"
     
     # Split the IP address into segments
     IFS=':' read -ra segments <<< "$IP6_TMP"
