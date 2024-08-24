@@ -210,6 +210,7 @@ if [ ! -f ~/.qnet.subnet.v6 ]; then
     
     addr1=$SUBNET_TMP
     addr2=$(ip -6 route | grep default | awk '{print $3}')
+    echo "$addr1 $addr2"
     
     # Convert IPv6 addresses to binary
     bin1=$(ipv6_to_bin "$addr1")
