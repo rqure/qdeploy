@@ -85,17 +85,23 @@ if [ ! -f ~/.qnet.subnet.v6 ]; then
     IP6_TMP="${IP6_WITH_MASK%/*}"
     # Extract mask
     MASK_TMP="${IP6_WITH_MASK#*/}"
+    
     # Split the IP address into segments
     IFS=':' read -ra segments <<< "$IP6_TMP"
     
-    # Extract the first part according to the prefix length
+    # Calculate the number of segments needed for the given prefix length
+    segments_required=$((MASK_TMP / 16))
+    
+    # Reconstruct the subnet
     SUBNET_TMP=""
-    for i in $(seq 0 $((MASK_TMP / 16 - 1))); do
+    for i in $(seq 0 $((segments_required - 1))); do
         SUBNET_TMP+="${segments[$i]}:"
     done
     
-    # Add trailing colon
-    SUBNET_TMP="${SUBNET_TMP}:"
+    # Fill remaining segments with zeros if necessary
+    for i in $(seq $segments_required 7); do
+        SUBNET_TMP+="0000:"
+    done
     
     # Display the subnet with the prefix
     echo "$SUBNET_TMP/$MASK_TMP" > ~/.qnet.subnet.v6
@@ -158,13 +164,22 @@ if [ ! -f ~/.qnet.pihole.v6 ]; then
     # Split the IP address into segments
     IFS=':' read -ra segments <<< "$IP6_TMP"
     
-    # Extract the first part according to the prefix length
+    # Calculate the number of segments needed for the given prefix length
+    segments_required=$((MASK_TMP / 16))
+    
+    # Reconstruct the subnet
     SUBNET_TMP=""
-    for i in $(seq 0 $((MASK_TMP / 16 - 1))); do
+    for i in $(seq 0 $((segments_required - 1))); do
         SUBNET_TMP+="${segments[$i]}:"
     done
     
-    IP6_TMP="${SUBNET_TMP}:10/${MASK_TMP}"
+    # Fill remaining segments with zeros if necessary
+    for i in $(seq $segments_required 7); do
+        SUBNET_TMP+="0000:"
+    done
+    
+    # Remove the trailing colon and append the desired suffix and mask
+    IP6_TMP="${SUBNET_TMP%:}:10/${MASK_TMP}"
     echo "$IP6_TMP" > ~/.qnet.pihole.v6
 fi
 
