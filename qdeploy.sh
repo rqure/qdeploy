@@ -18,7 +18,7 @@ if [ ! -f ~/.qnet.host.v4 ]; then
 fi
 
 if [ ! -f ~/.qnet.host.v6 ]; then
-    export HOST_IPv6=$(ip -6 addr show dev $NETWORK_INTERFACE scope global | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d')
+    export HOST_IPv6=$(ip -6 addr show dev $NETWORK_INTERFACE scope link | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d')
     echo "$HOST_IPv6" > ~/.qnet.host.v6
 fi
 
@@ -33,11 +33,54 @@ if [ ! -f ~/.qnet.gateway.v6 ]; then
 fi
 
 if [ ! -f ~/.qnet.subnet.v4 ]; then
-    ip -4 addr show dev $NETWORK_INTERFACE | grep inet | awk '{print $2}' > ~/.qnet.subnet.v4
+    ip_with_mask=$(ip -4 addr show dev $NETWORK_INTERFACE | grep inet | awk '{print $2}')
+    offset=0  # Offset to add to the base IP
+    
+    # Extract IP address and mask
+    ip=${ip_with_mask%/*}
+    mask=${ip_with_mask#*/}
+    
+    # Function to convert an IP address to an integer
+    ip_to_int() {
+      local ip=$1
+      local a b c d
+      IFS=. read -r a b c d <<< "$ip"
+      echo "$(( (a << 24) + (b << 16) + (c << 8) + d ))"
+    }
+    
+    # Function to convert an integer back to an IP address
+    int_to_ip() {
+      local int=$1
+      echo "$(( (int >> 24) & 255 )).$(( (int >> 16) & 255 )).$(( (int >> 8) & 255 )).$(( int & 255 ))"
+    }
+    
+    # Convert IP to integer
+    ip_int=$(ip_to_int "$ip")
+    
+    # Calculate the subnet mask in integer form
+    mask_int=$(( (0xFFFFFFFF << (32 - mask)) & 0xFFFFFFFF ))
+    
+    # Calculate the network base address by applying the subnet mask
+    network_int=$((ip_int & mask_int))
+    
+    # Add the offset to the base network address
+    new_ip_int=$((network_int + offset))
+    
+    # Ensure the new IP is within the same subnet
+    if (( (new_ip_int & mask_int) != network_int )); then
+      echo "Error: Offset results in an IP address outside the subnet."
+      exit 1
+    fi
+    
+    # Convert the new integer back to an IP address
+    new_ip=$(int_to_ip "$new_ip_int")
+    
+    # Output the new IP address with the original mask
+    echo "$new_ip/$mask" > ~/.qnet.pihole.v4
 fi
 
 if [ ! -f ~/.qnet.subnet.v6 ]; then
-    IP6_WITH_MASK=$(ip -6 addr show dev $NETWORK_INTERFACE scope global | sed -e 's/^.*inet6 \([^ ]*\/[0-9]*\).*$/\1/;t;d')
+    IP6_WITH_MASK=$(ip -6 addr show dev $NETWORK_INTERFACE scope link | sed -e 's/^.*inet6 \([^ ]*\/[0-9]*\).*$/\1/;t;d')
     # Extract IP address
     IP6_TMP="${IP6_WITH_MASK%/*}"
     # Extract mask
@@ -106,7 +149,7 @@ if [ ! -f ~/.qnet.pihole.v4 ]; then
 fi
 
 if [ ! -f ~/.qnet.pihole.v6 ]; then
-    IP6_WITH_MASK=$(ip -6 addr show dev $NETWORK_INTERFACE scope global | sed -e 's/^.*inet6 \([^ ]*\/[0-9]*\).*$/\1/;t;d')
+    IP6_WITH_MASK=$(ip -6 addr show dev $NETWORK_INTERFACE scope link | sed -e 's/^.*inet6 \([^ ]*\/[0-9]*\).*$/\1/;t;d')
     # Extract IP address
     IP6_TMP="${IP6_WITH_MASK%/*}"
     # Extract mask
