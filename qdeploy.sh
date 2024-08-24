@@ -11,13 +11,131 @@ if [ ! -f ~/.wireguard.serverurl ]; then
     touch ~/.wireguard.serverurl
 fi
 
+export NETWORK_INTERFACE=$(ip route | grep default | awk '{print $5}')
+if [ ! -f ~/.qnet.host.v4 ]; then
+    export HOST_IP=$(ip -4 addr show dev $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}')
+    echo "$HOST_IP" > ~/.qnet.host.v4
+fi
+
+if [ ! -f ~/.qnet.host.v6 ]; then
+    export HOST_IPv6=$(ip -6 addr show dev $NETWORK_INTERFACE scope global | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d')
+    echo "$HOST_IPv6" > ~/.qnet.host.v6
+fi
+
+if [ ! -f ~/.qnet.gateway.v4 ]; then
+    export GATEWAY=$(ip route | grep default | awk '{print $3}')
+    echo "$GATEWAY" > ~/.qnet.gateway.v4
+fi
+
+if [ ! -f ~/.qnet.gateway.v6 ]; then
+    export GATEWAYv6=$(ip -6 route | grep default | awk '{print $3}')
+    echo "$GATEWAYv6" > ~/.qnet.gateway.v6
+fi
+
+if [ ! -f ~/.qnet.subnet.v4 ]; then
+    ip -4 addr show dev $NETWORK_INTERFACE | grep inet | awk '{print $2}' > ~/.qnet.subnet.v4
+fi
+
+if [ ! -f ~/.qnet.subnet.v6 ]; then
+    IP6_WITH_MASK=$(ip -6 addr show dev $NETWORK_INTERFACE scope global | sed -e 's/^.*inet6 \([^ ]*\/[0-9]*\).*$/\1/;t;d')
+    # Extract IP address
+    IP6_TMP="${IP6_WITH_MASK%/*}"
+    # Extract mask
+    MASK_TMP="${IP6_WITH_MASK#*/}"
+    # Split the IP address into segments
+    IFS=':' read -ra segments <<< "$IP6_TMP"
+    
+    # Extract the first part according to the prefix length
+    SUBNET_TMP=""
+    for i in $(seq 0 $((prefix / 16 - 1))); do
+        SUBNET_TMP+="${segments[$i]}:"
+    done
+    
+    # Add trailing colon
+    SUBNET_TMP="${SUBNET_TMP}:"
+    
+    # Display the subnet with the prefix
+    echo "$SUBNET_TMP/$MASK_TMP" > ~/.qnet.subnet.v6
+fi
+
+if [ ! -f ~/.qnet.pihole.v4 ]; then
+    ip_with_mask=$(ip -4 addr show dev $NETWORK_INTERFACE | grep inet | awk '{print $2}')
+    offset=10  # Offset to add to the base IP
+    
+    # Extract IP address and mask
+    ip=${ip_with_mask%/*}
+    mask=${ip_with_mask#*/}
+    
+    # Function to convert an IP address to an integer
+    ip_to_int() {
+      local ip=$1
+      local a b c d
+      IFS=. read -r a b c d <<< "$ip"
+      echo "$(( (a << 24) + (b << 16) + (c << 8) + d ))"
+    }
+    
+    # Function to convert an integer back to an IP address
+    int_to_ip() {
+      local int=$1
+      echo "$(( (int >> 24) & 255 )).$(( (int >> 16) & 255 )).$(( (int >> 8) & 255 )).$(( int & 255 ))"
+    }
+    
+    # Convert IP to integer
+    ip_int=$(ip_to_int "$ip")
+    
+    # Calculate the subnet mask in integer form
+    mask_int=$(( (0xFFFFFFFF << (32 - mask)) & 0xFFFFFFFF ))
+    
+    # Calculate the network base address by applying the subnet mask
+    network_int=$((ip_int & mask_int))
+    
+    # Add the offset to the base network address
+    new_ip_int=$((network_int + offset))
+    
+    # Ensure the new IP is within the same subnet
+    if (( (new_ip_int & mask_int) != network_int )); then
+      echo "Error: Offset results in an IP address outside the subnet."
+      exit 1
+    fi
+    
+    # Convert the new integer back to an IP address
+    new_ip=$(int_to_ip "$new_ip_int")
+    
+    # Output the new IP address with the original mask
+    echo "$new_ip/$mask"
+    echo "192.168.1.10" > ~/.qnet.pihole.v4
+fi
+
+if [ ! -f ~/.qnet.pihole.v6 ]; then
+    IP6_WITH_MASK=$(ip -6 addr show dev $NETWORK_INTERFACE scope global | sed -e 's/^.*inet6 \([^ ]*\/[0-9]*\).*$/\1/;t;d')
+    # Extract IP address
+    IP6_TMP="${IP6_WITH_MASK%/*}"
+    
+    # Split the IP address into segments
+    IFS=':' read -ra segments <<< "$IP6_TMP"
+    
+    # Extract the first part according to the prefix length
+    SUBNET_TMP=""
+    for i in $(seq 0 $((prefix / 16 - 1))); do
+        SUBNET_TMP+="${segments[$i]}:"
+    done
+    
+    IP6_TMP="${SUBNET_TMP}:10"
+    echo "$IP6_TMP" > ~/.qnet.pihole.v6
+fi
+
 export DUCKDNS_SUBDOMAINS=$(cat ~/.duckdns.subdomains)
 export DUCKDNS_TOKEN=$(cat ~/.duckdns.token)
 export WIREGUARD_SERVERURL=$(cat ~/.wireguard.serverurl)
 
-export NETWORK_INTERFACE=$(ip route | grep default | awk '{print $5}')
-export HOST_IP=$(ip -4 addr show $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}')
-export HOST_IP6=$(ip -6 addr show dev $NETWORK_INTERFACE scope global | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d')
+export HOST_IP=$(cat ~/.qnet.host.v4)
+export HOST_IPv6=$(cat ~/.qnet.host.v6)
+export GATEWAY=$(cat ~/.qnet.gateway.v4)
+export GATEWAYv6=$(cat ~/.qnet.gateway.v6)
+export SUBNET=$(cat ~/.qnet.subnet.v4)
+export SUBNETv6=$(cat ~/.qnet.subnet.v6)
+export PIHOLEv4=$(cat ~/.qnet.pihole.v4)
+export PIHOLEv6=$(cat ~/.qnet.pihole.v6)
 
 # Create volumes for config and data
 mkdir -p volumes/duckdns/
@@ -35,6 +153,7 @@ mkdir -p volumes/qpihole/etc-dnsmasq.d/
 mkdir -p volumes/qpihole/etc-pihole/
 if [ ! -f volumes/qpihole/etc-pihole/custom.list ]; then
     echo "${HOST_IP} qserver.local" > volumes/qpihole/etc-pihole/custom.list
+    echo "${HOST_IPv6} qserver.local" >> volumes/qpihole/etc-pihole/custom.list
 fi
 
 if [ ! -f volumes/qpihole/etc-dnsmasq.d/05-pihole-custom-cname.conf ]; then
@@ -255,13 +374,17 @@ services:
       TZ: 'America/Edmonton'
       WEBPASSWORD: 'rqure'
     ports:
-      - "${HOST_IP}:53:53/tcp"
-      - "${HOST_IP}:53:53/udp"
-      - "${HOST_IP6}:53:53/tcp"
-      - "${HOST_IP6}:53:53/udp"
+      - "${PIHOLEv4}:53:53/tcp"
+      - "${PIHOLEv4}:53:53/udp"
+      - "${PIHOLEv6}:53:53/tcp"
+      - "${PIHOLEv6}:53:53/udp"
     volumes:
       - './volumes/qpihole/etc-pihole/:/etc/pihole/'
       - './volumes/qpihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
+    networks:
+      qnet:
+        ipv4_address: ${PIHOLEv4}
+        ipv6_address: ${PIHOLEv6}
   nginx:
     image: nginx:latest
     ports:
@@ -270,6 +393,18 @@ services:
     volumes:
       - ./volumes/qnginx/conf.d:/etc/nginx/conf.d
       - ./volumes/qnginx/nginx.conf:/etc/nginx/nginx.conf
+networks:
+  qnet:
+    enable_ipv6: true
+    driver: macvlan
+    driver_opts:
+      parent: ${NETWORK_INTERFACE}
+    ipam:
+      config:
+        - subnet: ${SUBNET}
+          gateway: ${GATEWAY}
+        - subnet: ${SUBNETv6}
+          gateway: ${GATEWAYv6}
 EOF
 
 docker compose up -d
