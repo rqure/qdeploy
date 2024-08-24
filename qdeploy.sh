@@ -76,7 +76,7 @@ if [ ! -f ~/.qnet.subnet.v4 ]; then
     new_ip=$(int_to_ip "$new_ip_int")
     
     # Output the new IP address with the original mask
-    echo "$new_ip/$mask" > ~/.qnet.pihole.v4
+    echo "$new_ip/$mask" > ~/.qnet.subnet.v4
 fi
 
 if [ ! -f ~/.qnet.subnet.v6 ]; then
@@ -98,7 +98,7 @@ if [ ! -f ~/.qnet.subnet.v6 ]; then
     SUBNET_TMP="${SUBNET_TMP}:"
     
     # Display the subnet with the prefix
-    echo "$SUBNET_TMP/$MASK_TMP" > ~/.qnet.subnet.v4
+    echo "$SUBNET_TMP/$MASK_TMP" > ~/.qnet.subnet.v6
 fi
 
 if [ ! -f ~/.qnet.pihole.v4 ]; then
