@@ -102,8 +102,7 @@ if [ ! -f ~/.qnet.pihole.v4 ]; then
     new_ip=$(int_to_ip "$new_ip_int")
     
     # Output the new IP address with the original mask
-    echo "$new_ip/$mask"
-    echo "192.168.1.10" > ~/.qnet.pihole.v4
+    echo "$new_ip/$mask" > ~/.qnet.pihole.v4
 fi
 
 if [ ! -f ~/.qnet.pihole.v6 ]; then
