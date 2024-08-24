@@ -118,7 +118,7 @@ if [ ! -f ~/.qnet.pihole.v6 ]; then
     
     # Extract the first part according to the prefix length
     SUBNET_TMP=""
-    for i in $(seq 0 $((prefix / 16 - 1))); do
+    for i in $(seq 0 $((MASK_TMP / 16 - 1))); do
         SUBNET_TMP+="${segments[$i]}:"
     done
     
