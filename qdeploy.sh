@@ -211,13 +211,13 @@ services:
     volumes:
       - ./volumes/qredis/data:/data
   clock:
-    image: rqure/clock:v2.2.2
+    image: rqure/clock:v2.2.3
     restart: always
   audio-player:
-    image: rqure/audio-player:v1.2.4
+    image: rqure/audio-player:v1.2.5
     restart: always
   prayer:
-    image: rqure/adhan:v2.2.3
+    image: rqure/adhan:v2.2.4
     restart: always
   dmm:
     image: rqure/dmm:v1.0.0
@@ -235,15 +235,15 @@ services:
       - /dev/ttyUSB0:/dev/ttyACM0
       - ./volumes/qzigbee2mqtt:/app/data
   mqttgateway:
-    image: rqure/mqttgateway:v1.2.2
+    image: rqure/mqttgateway:v1.2.3
     restart: always
     environment:
       - QMQ_LOG_LEVEL=0
   garage:
-    image: rqure/garage:v1.2.3
+    image: rqure/garage:v1.2.4
     restart: always
   webgateway:
-    image: rqure/webgateway:v0.0.5
+    image: rqure/webgateway:v0.0.6
     restart: always
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
