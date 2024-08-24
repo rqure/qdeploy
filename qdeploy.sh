@@ -122,7 +122,7 @@ if [ ! -f ~/.qnet.pihole.v6 ]; then
         SUBNET_TMP+="${segments[$i]}:"
     done
     
-    IP6_TMP="${SUBNET_TMP}:10"
+    IP6_TMP="${SUBNET_TMP}:10/${MASK_TMP}"
     echo "$IP6_TMP" > ~/.qnet.pihole.v6
 fi
 
