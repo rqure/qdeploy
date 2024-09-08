@@ -127,6 +127,20 @@ if [ ! -f volumes/qnginx/conf.d/default.conf ]; then
     cat <<EOF > volumes/qnginx/conf.d/default.conf
 server {
     listen 80;
+
+    location / {
+        proxy_pass http://webgateway:20000;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+
+server {
+    listen 80;
     server_name logs.local;
 
     location / {
@@ -243,7 +257,7 @@ services:
     image: rqure/garage:v1.2.4
     restart: always
   webgateway:
-    image: rqure/webgateway:v0.0.6
+    image: rqure/webgateway:v0.0.7
     restart: always
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
