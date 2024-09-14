@@ -66,11 +66,6 @@ mkdir -p volumes/duckdns/
 
 mkdir -p volumes/wireguard/
 
-mkdir -p volumes/qzigbee2mqtt/
-if [ ! -f volumes/qzigbee2mqtt/configuration.yaml ]; then
-    curl https://raw.githubusercontent.com/rqure/qzigbee2mqtt/main/configuration.yaml -o volumes/qzigbee2mqtt/configuration.yaml
-fi
-
 mkdir -p volumes/qredis/data/
 
 mkdir -p volumes/qpihole/etc-dnsmasq.d/
@@ -83,8 +78,6 @@ fi
 if [ ! -f volumes/qpihole/etc-dnsmasq.d/05-pihole-custom-cname.conf ]; then
     cat <<EOF > volumes/qpihole/etc-dnsmasq.d/05-pihole-custom-cname.conf
 cname=logs.local,qserver.local
-cname=garage.local,qserver.local
-cname=z2m.local,qserver.local
 cname=database.local,qserver.local
 cname=pi.hole,qserver.local
 EOF
@@ -156,54 +149,9 @@ server {
 
 server {
     listen 80;
-    server_name z2m.local;
-
-    location / {
-        proxy_pass http://zigbee2mqtt:8080;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
-
-server {
-    listen 80;
     server_name database.local;
 
     location / {
-        proxy_pass http://webgateway:20000;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
-
-server {
-    listen 80;
-    server_name garage.local;
-
-    location / {
-        proxy_pass http://garage:20001;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
-
-server {
-    listen 20000;
-    server_name garage.local;
-
-    location /ws {
         proxy_pass http://webgateway:20000;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
@@ -226,35 +174,6 @@ services:
       - ./volumes/qredis/data:/data
   clock:
     image: rqure/clock:v2.2.3
-    restart: always
-  audio-player:
-    image: rqure/audio-player:v1.2.5
-    restart: always
-  prayer:
-    image: rqure/adhan:v2.2.4
-    restart: always
-  dmm:
-    image: rqure/dmm:v1.0.0
-    restart: always
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-  mosquitto:
-    image: rqure/mosquitto:v1.0.0
-    restart: always
-  zigbee2mqtt:
-    image: rqure/zigbee2mqtt:v1.1.0
-    restart: always
-    volumes:
-      - /run/udev:/run/udev:ro
-      - /dev/ttyUSB0:/dev/ttyACM0
-      - ./volumes/qzigbee2mqtt:/app/data
-  mqttgateway:
-    image: rqure/mqttgateway:v1.2.3
-    restart: always
-    environment:
-      - QMQ_LOG_LEVEL=0
-  garage:
-    image: rqure/garage:v1.2.4
     restart: always
   webgateway:
     image: rqure/webgateway:v0.0.8
@@ -295,7 +214,7 @@ services:
     restart: always
     environment:
       TZ: 'America/Edmonton'
-      WEBPASSWORD: 'rqure'
+      WEBPASSWORD: 'admin'
     ports:
       - "${PIHOLEv4}:53:53/tcp"
       - "${PIHOLEv4}:53:53/udp"
