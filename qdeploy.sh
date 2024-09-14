@@ -41,11 +41,11 @@ if [ ! -f ~/.qnet.subnet.v6 ]; then
 fi
 
 if [ ! -f ~/.qnet.pihole.v4 ]; then
-    echo "192.168.1.10" > ~/.qnet.pihole.v4
+    echo "192.168.1.15" > ~/.qnet.pihole.v4
 fi
 
 if [ ! -f ~/.qnet.pihole.v6 ]; then
-    echo "fe80::10" > ~/.qnet.pihole.v6
+    echo "fe80::15" > ~/.qnet.pihole.v6
 fi
 
 export DUCKDNS_SUBDOMAINS=$(cat ~/.duckdns.subdomains)
