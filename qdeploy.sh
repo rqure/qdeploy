@@ -257,7 +257,7 @@ services:
     image: rqure/garage:v1.2.4
     restart: always
   webgateway:
-    image: rqure/webgateway:v0.0.7
+    image: rqure/webgateway:v0.0.8
     restart: always
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
