@@ -11,6 +11,22 @@ if [ ! -f ~/.wireguard.serverurl ]; then
     touch ~/.wireguard.serverurl
 fi
 
+if [ ! -f ~/.smtp.email ]; then
+    touch ~/.smtp.email
+fi
+
+if [ ! -f ~/.smtp.pwd ]; then
+    touch ~/.smtp.pwd
+fi
+
+if [ ! -f ~/.smtp.host ]; then
+    touch ~/.smtp.host
+fi
+
+if [ ! -f ~/.smtp.port ]; then
+    touch ~/.smtp.port
+fi
+
 export NETWORK_INTERFACE=$(ip route | grep default | awk '{print $5}')
 if [ ! -f ~/.qnet.host.v4 ]; then
     export HOST_IP=$(ip -4 addr show dev $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}')
@@ -51,6 +67,11 @@ fi
 export DUCKDNS_SUBDOMAINS=$(cat ~/.duckdns.subdomains)
 export DUCKDNS_TOKEN=$(cat ~/.duckdns.token)
 export WIREGUARD_SERVERURL=$(cat ~/.wireguard.serverurl)
+
+export QDB_EMAIL_ADDRESS=$(cat ~/.smtp.email)
+export QDB_EMAIL_PASSWORD=$(cat ~/.smtp.pwd)
+export QDB_EMAIL_HOST=$(cat ~/.smtp.host)
+export QDB_EMAIL_PORT=$(cat ~/.smtp.port)
 
 export HOST_IP=$(cat ~/.qnet.host.v4)
 export HOST_IPv6=$(cat ~/.qnet.host.v6)
@@ -259,6 +280,14 @@ services:
   webgateway:
     image: rqure/webgateway:v0.0.8
     restart: always
+  smtp:
+    image: rqure/smtp:v0.0.0
+    restart: always
+    environment:
+      - QDB_EMAIL_ADDRESS=${QDB_EMAIL_ADDRESS}
+      - QDB_EMAIL_PASSWORD=${QDB_EMAIL_PASSWORD}
+      - QDB_EMAIL_HOST=${QDB_EMAIL_HOST}
+      - QDB_EMAIL_PORT=${QDB_EMAIL_PORT}
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
     restart: always
