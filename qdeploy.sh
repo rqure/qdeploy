@@ -278,13 +278,13 @@ services:
     image: rqure/garage:v1.2.4
     restart: always
   webgateway:
-    image: rqure/webgateway:v0.0.8
+    image: rqure/webgateway:v0.0.9
     restart: always
   alert:
-    image: rqure/alert:v0.0.1
+    image: rqure/alert:v0.0.2
     restart: always
   smtp:
-    image: rqure/smtp:v0.0.0
+    image: rqure/smtp:v0.0.1
     restart: always
     environment:
       - QDB_EMAIL_ADDRESS=${QDB_EMAIL_ADDRESS}
