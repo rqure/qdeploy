@@ -281,7 +281,7 @@ services:
     image: rqure/webgateway:v0.0.8
     restart: always
   alert:
-    image: rqure/alert:v0.0.0
+    image: rqure/alert:v0.0.1
     restart: always
   smtp:
     image: rqure/smtp:v0.0.0
