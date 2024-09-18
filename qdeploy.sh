@@ -252,8 +252,10 @@ services:
     image: rqure/audio-player:v1.2.5
     restart: always
   prayer:
-    image: rqure/adhan:v2.2.4
+    image: rqure/adhan:v2.2.5
     restart: always
+    environment:
+      - ALERTS=TTS,EMAILS
   dmm:
     image: rqure/dmm:v1.0.0
     restart: always
@@ -275,8 +277,10 @@ services:
     environment:
       - QMQ_LOG_LEVEL=0
   garage:
-    image: rqure/garage:v1.2.4
+    image: rqure/garage:v1.2.5
     restart: always
+    environment:
+      - ALERTS=TTS,EMAILS
   webgateway:
     image: rqure/webgateway:v0.0.9
     restart: always
