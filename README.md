@@ -21,9 +21,3 @@ https://docs.docker.com/engine/install/debian/
 ```
 ./qdelete.sh
 ```
-
-# Troubleshooting qservices
-
-```
-./qlog.sh <service name>
-```
