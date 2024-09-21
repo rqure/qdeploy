@@ -252,7 +252,7 @@ services:
     image: rqure/audio-player:v1.2.5
     restart: always
   prayer:
-    image: rqure/adhan:v2.2.5
+    image: rqure/adhan:v2.2.6
     restart: always
     environment:
       - ALERTS=TTS,EMAILS
