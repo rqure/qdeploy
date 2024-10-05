@@ -4,7 +4,7 @@
 # sudo -v ; curl https://rclone.org/install.sh | sudo bash
 
 # Variables
-DIRECTORY=$1
+DIRECTORY=volumes
 TAR_FILENAME="backup_$(date +'%Y%m%d_%H%M%S').tar.gz"
 TAR_FILEPATH="/tmp/$TAR_FILENAME"
 GDRIVE_FOLDER_ID="backups/volumes"
