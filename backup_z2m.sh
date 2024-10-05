@@ -5,7 +5,7 @@
 
 # Variables
 DIRECTORY=volumes
-TAR_FILENAME="backup_$(date +'%Y%m%d_%H%M%S').tar.gz"
+TAR_FILENAME="backup_z2m_$(date +'%Y%m%d_%H%M%S').tar.gz"
 TAR_FILEPATH="/tmp/$TAR_FILENAME"
 GDRIVE_FOLDER_ID="backups/volumes"
 
