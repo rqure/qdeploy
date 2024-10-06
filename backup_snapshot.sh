@@ -8,7 +8,7 @@
 DIRECTORY=/tmp/snapshot.json
 TAR_FILENAME="backup_snapshot_$(date +'%Y%m%d_%H%M%S').tar.gz"
 TAR_FILEPATH="/tmp/$TAR_FILENAME"
-GDRIVE_FOLDER_ID="backups/volumes"
+GDRIVE_FOLDER_ID="backups/snapshots"
 
 # Make a backup
 ID=$(curl -s localhost/make-client-id | jq -r '.header.id')
