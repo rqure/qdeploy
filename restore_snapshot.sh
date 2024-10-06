@@ -7,7 +7,7 @@ wget -O /tmp/snapshot.tar.gz https://github.com/rqure/qsnapshot/releases/downloa
 tar -xvf /tmp/snapshot.tar.gz -C /tmp snapshot.json
 
 # Restore snapshot
-curl http://localhost/db/api -d @/tmp/snapshot.json
+curl http://localhost/api -d @/tmp/snapshot.json
 
 # Cleanup
 rm -f /tmp/snapshot.json /tmp/snapshot.tar.gz
