@@ -7,7 +7,7 @@
 DIRECTORY=volumes/qzigbee2mqtt
 TAR_FILENAME="backup_z2m_$(date +'%Y%m%d_%H%M%S').tar.gz"
 TAR_FILEPATH="/tmp/$TAR_FILENAME"
-GDRIVE_FOLDER_ID="backups/volumes"
+GDRIVE_FOLDER_ID="backups/volumes/z2m"
 
 # Create a tar.gz archive of the directory
 tar -czvf "$TAR_FILEPATH" "$DIRECTORY"
