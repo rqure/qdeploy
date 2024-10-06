@@ -149,7 +149,7 @@ if [ ! -f volumes/qnginx/conf.d/default.conf ]; then
 server {
     listen 80;
 
-    location / {
+    location /db {
         proxy_pass http://webgateway:20000;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
