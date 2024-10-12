@@ -350,6 +350,7 @@ services:
       - "80:80"
       - "20000:20000"
     volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
       - ./volumes/qnginx/conf.d:/etc/nginx/conf.d
       - ./volumes/qnginx/nginx.conf:/etc/nginx/nginx.conf
 networks:
