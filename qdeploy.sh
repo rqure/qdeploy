@@ -345,7 +345,7 @@ services:
         ipv4_address: ${PIHOLEv4}
         ipv6_address: ${PIHOLEv6}
   nginx:
-    image: nginx:latest
+    image: nginxproxy/nginx-proxy:1.6
     ports:
       - "80:80"
       - "20000:20000"
