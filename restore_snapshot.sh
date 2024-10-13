@@ -1,13 +1,18 @@
 VERSION=v0.0.2
 
-# Download from release page
-wget -O /tmp/snapshot.tar.gz https://github.com/rqure/qsnapshot/releases/download/$VERSION/snapshot.tar.gz
+# # Download from release page
+wget -O snapshot.tar.gz https://github.com/rqure/qsnapshot/releases/download/$VERSION/snapshot.tar.gz
 
-# Extract to /tmp/snapshot.json
-tar -xvf /tmp/snapshot.tar.gz -C /tmp snapshot.json
+# # Extract to qtmp/snapshot.json
+tar -xzvf snapshot.tar.gz
 
 # Restore snapshot
-curl http://localhost/api -d @/tmp/snapshot.json
+ID=$(curl -s localhost/make-client-id | jq -r '.header.id')
+SNAPSHOT=$(cat tmp/snapshot.json | jq ".header.id = \"$ID\"")
+echo $SNAPSHOT > tmp/snapshot.json
+curl http://localhost/api -d @./tmp/snapshot.json
 
 # Cleanup
-rm -f /tmp/snapshot.json /tmp/snapshot.tar.gz
+rm -rf tmp
+
+echo
