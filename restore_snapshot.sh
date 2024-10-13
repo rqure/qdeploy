@@ -13,6 +13,6 @@ echo $SNAPSHOT > tmp/snapshot.json
 curl http://localhost/api -d @./tmp/snapshot.json
 
 # Cleanup
-rm -rf tmp
+rm -rf tmp snapshot.tar.gz
 
 echo
