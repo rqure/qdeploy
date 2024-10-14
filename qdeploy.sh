@@ -246,16 +246,28 @@ services:
     volumes:
       - ./volumes/qredis/data:/data
   clock:
-    image: rqure/clock:v2.2.3
+    image: rqure/clock:v2.2.4
     restart: always
+    environment:
+      - QDB_IN_DOCKER=true
   audio-player:
-    image: rqure/audio-player:v1.2.5
+    image: rqure/audio-player:v1.2.6
     restart: always
+    environment:
+      - QDB_IN_DOCKER=true
   prayer:
-    image: rqure/adhan:v2.2.6
+    image: rqure/adhan:v2.2.7
     restart: always
     environment:
       - ALERTS=TTS,EMAILS
+      - QDB_IN_DOCKER=true
+  qsm:
+    image: rqure/qsm:v0.0.1
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - QDB_IN_DOCKER=true
   dmm:
     image: rqure/dmm:v1.0.0
     restart: always
@@ -272,29 +284,35 @@ services:
       - /dev/ttyUSB0:/dev/ttyACM0
       - ./volumes/qzigbee2mqtt:/app/data
   mqttgateway:
-    image: rqure/mqttgateway:v1.2.3
+    image: rqure/mqttgateway:v1.2.4
     restart: always
     environment:
-      - QMQ_LOG_LEVEL=0
+      - QDB_IN_DOCKER=true
   garage:
     image: rqure/garage:v1.2.5
     restart: always
     environment:
       - ALERTS=TTS,EMAILS
+      - QDB_IN_DOCKER=true
   webgateway:
-    image: rqure/webgateway:v0.0.9
+    image: rqure/webgateway:v0.0.10
     restart: always
+    environment:
+      - QDB_IN_DOCKER=true
   alert:
-    image: rqure/alert:v0.0.2
+    image: rqure/alert:v0.0.3
     restart: always
+    environment:
+      - QDB_IN_DOCKER=true
   smtp:
-    image: rqure/smtp:v0.0.1
+    image: rqure/smtp:v0.0.2
     restart: always
     environment:
       - QDB_EMAIL_ADDRESS=${QDB_EMAIL_ADDRESS}
       - QDB_EMAIL_PASSWORD=${QDB_EMAIL_PASSWORD}
       - QDB_EMAIL_HOST=${QDB_EMAIL_HOST}
       - QDB_EMAIL_PORT=${QDB_EMAIL_PORT}
+      - QDB_IN_DOCKER=true
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
     restart: always
