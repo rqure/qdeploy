@@ -264,7 +264,7 @@ services:
       - ALERTS=TTS,EMAILS
       - QDB_IN_DOCKER=true
   qsm:
-    image: rqure/qsm:v0.0.1
+    image: rqure/qsm:v0.0.3
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
