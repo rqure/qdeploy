@@ -139,6 +139,8 @@ http {
     keepalive_timeout  65;
     types_hash_max_size 2048;
 
+    client_max_body_size 1000M;
+
     include /etc/nginx/conf.d/*.conf;
 }
 EOF
