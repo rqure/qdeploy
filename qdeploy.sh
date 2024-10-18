@@ -386,4 +386,4 @@ networks:
           gateway: ${GATEWAYv6}
 EOF
 
-docker compose up -d
+docker compose up -d --force-recreate
