@@ -264,7 +264,7 @@ services:
       - ALERTS=TTS,EMAILS
       - QDB_IN_DOCKER=true
   qsm:
-    image: rqure/qsm:v0.0.6
+    image: rqure/qsm:v0.0.7
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -297,7 +297,7 @@ services:
       - ALERTS=TTS,EMAILS
       - QDB_IN_DOCKER=true
   webgateway:
-    image: rqure/webgateway:v0.0.11
+    image: rqure/webgateway:v0.0.12
     restart: always
     environment:
       - QDB_IN_DOCKER=true
