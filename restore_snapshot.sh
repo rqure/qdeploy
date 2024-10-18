@@ -1,4 +1,4 @@
-VERSION=v0.0.4
+VERSION=v0.0.5
 
 # # Download from release page
 wget -O snapshot.tar.gz https://github.com/rqure/qsnapshot/releases/download/$VERSION/snapshot.tar.gz
