@@ -34,34 +34,9 @@ if [ ! -f ~/.qnet.host.v4 ]; then
 fi
 
 if [ ! -f ~/.qnet.host.v6 ]; then
-    export HOST_IPv6=$(ip -6 addr show dev $NETWORK_INTERFACE scope link | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d')
+    # Get the statically assigned ULA address
+    export HOST_IPv6=$(ip -6 addr show dev $NETWORK_INTERFACE | grep 'inet6 fd00' | head -n 1 | awk '{print $2}' | cut -d'/' -f1)
     echo "$HOST_IPv6" > ~/.qnet.host.v6
-fi
-
-if [ ! -f ~/.qnet.gateway.v4 ]; then
-    export GATEWAY=$(ip route | grep default | awk '{print $3}')
-    echo "$GATEWAY" > ~/.qnet.gateway.v4
-fi
-
-if [ ! -f ~/.qnet.gateway.v6 ]; then
-    export GATEWAYv6=$(ip -6 route | grep default | awk '{print $3}')
-    echo "$GATEWAYv6" > ~/.qnet.gateway.v6
-fi
-
-if [ ! -f ~/.qnet.subnet.v4 ]; then
-    echo "192.168.1.0/24" > ~/.qnet.subnet.v4
-fi
-
-if [ ! -f ~/.qnet.subnet.v6 ]; then
-    echo "fe80::/10" > ~/.qnet.subnet.v6
-fi
-
-if [ ! -f ~/.qnet.pihole.v4 ]; then
-    echo "192.168.1.10" > ~/.qnet.pihole.v4
-fi
-
-if [ ! -f ~/.qnet.pihole.v6 ]; then
-    echo "fe80::10" > ~/.qnet.pihole.v6
 fi
 
 export DUCKDNS_SUBDOMAINS=$(cat ~/.duckdns.subdomains)
@@ -75,12 +50,6 @@ export QDB_EMAIL_PORT=$(cat ~/.smtp.port)
 
 export HOST_IP=$(cat ~/.qnet.host.v4)
 export HOST_IPv6=$(cat ~/.qnet.host.v6)
-export GATEWAY=$(cat ~/.qnet.gateway.v4)
-export GATEWAYv6=$(cat ~/.qnet.gateway.v6)
-export SUBNET=$(cat ~/.qnet.subnet.v4)
-export SUBNETv6=$(cat ~/.qnet.subnet.v6)
-export PIHOLEv4=$(cat ~/.qnet.pihole.v4)
-export PIHOLEv6=$(cat ~/.qnet.pihole.v6)
 
 # Create volumes for config and data
 mkdir -p volumes/duckdns/
@@ -183,6 +152,21 @@ server {
 
     location / {
         proxy_pass http://zigbee2mqtt:8080;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+
+server {
+    listen 80;
+    server_name pihole.local;
+
+    location / {
+        proxy_pass http://pihole:80;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -353,17 +337,13 @@ services:
       TZ: 'America/Edmonton'
       WEBPASSWORD: 'rqure'
     ports:
-      - "${PIHOLEv4}:53:53/tcp"
-      - "${PIHOLEv4}:53:53/udp"
-      - "[${PIHOLEv6}]:53:53/tcp"
-      - "[${PIHOLEv6}]:53:53/udp"
+      - "${HOST_IP}:53:53/tcp"
+      - "${HOST_IP}:53:53/udp"
+      - "[${HOST_IPv6}]:53:53/tcp"
+      - "[${HOST_IPv6}]:53:53/udp"
     volumes:
       - './volumes/qpihole/etc-pihole/:/etc/pihole/'
       - './volumes/qpihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
-    networks:
-      qnet:
-        ipv4_address: ${PIHOLEv4}
-        ipv6_address: ${PIHOLEv6}
   nginx:
     image: nginx:latest
     ports:
@@ -372,18 +352,6 @@ services:
     volumes:
       - ./volumes/qnginx/conf.d:/etc/nginx/conf.d
       - ./volumes/qnginx/nginx.conf:/etc/nginx/nginx.conf
-networks:
-  qnet:
-    enable_ipv6: true
-    driver: macvlan
-    driver_opts:
-      parent: ${NETWORK_INTERFACE}
-    ipam:
-      config:
-        - subnet: ${SUBNET}
-          gateway: ${GATEWAY}
-        - subnet: ${SUBNETv6}
-          gateway: ${GATEWAYv6}
 EOF
 
 docker compose up -d --force-recreate
