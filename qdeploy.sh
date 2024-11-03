@@ -76,7 +76,7 @@ cname=logs.local,qserver.local
 cname=garage.local,qserver.local
 cname=z2m.local,qserver.local
 cname=database.local,qserver.local
-cname=pi.hole,qserver.local
+cname=pihole.local,qserver.local
 EOF
 fi
 
