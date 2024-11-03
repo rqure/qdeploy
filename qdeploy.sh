@@ -352,6 +352,12 @@ services:
     volumes:
       - ./volumes/qnginx/conf.d:/etc/nginx/conf.d
       - ./volumes/qnginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - garage
+      - webgateway
+      - dozzle
+      - pihole
+      - zigbee2mqtt
 EOF
 
 docker compose up -d --force-recreate
