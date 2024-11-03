@@ -341,6 +341,7 @@ services:
       - "${HOST_IP}:53:53/udp"
       - "[${HOST_IPv6}]:53:53/tcp"
       - "[${HOST_IPv6}]:53:53/udp"
+      - "8081:80/tcp"
     volumes:
       - './volumes/qpihole/etc-pihole/:/etc/pihole/'
       - './volumes/qpihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
