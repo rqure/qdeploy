@@ -254,6 +254,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - QDB_IN_DOCKER=true
+    resources:
+      limits:
+        memory: 50M
   dmm:
     image: rqure/dmm:v1.0.0
     restart: always
