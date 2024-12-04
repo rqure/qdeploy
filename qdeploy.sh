@@ -257,96 +257,16 @@ services:
     resources:
       limits:
         memory: 50M
-  dmm:
-    image: rqure/dmm:v1.0.0
-    restart: always
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-  mosquitto:
-    image: rqure/mosquitto:v1.0.0
-    restart: always
-  zigbee2mqtt:
-    image: rqure/zigbee2mqtt:v1.1.0
-    restart: always
-    volumes:
-      - /run/udev:/run/udev:ro
-      - /dev/ttyUSB0:/dev/ttyACM0
-      - ./volumes/qzigbee2mqtt:/app/data
-  mqttgateway:
-    image: rqure/mqttgateway:v1.2.5
-    restart: always
-    environment:
-      - QDB_IN_DOCKER=true
-  garage:
-    image: rqure/garage:v1.2.7
-    restart: always
-    environment:
-      - ALERTS=TTS,EMAILS
-      - QDB_IN_DOCKER=true
   webgateway:
     image: rqure/webgateway:v0.0.12
     restart: always
     environment:
       - QDB_IN_DOCKER=true
-  alert:
-    image: rqure/alert:v0.0.4
-    restart: always
-    environment:
-      - QDB_IN_DOCKER=true
-  smtp:
-    image: rqure/smtp:v0.0.3
-    restart: always
-    environment:
-      - QDB_EMAIL_ADDRESS=${QDB_EMAIL_ADDRESS}
-      - QDB_EMAIL_PASSWORD=${QDB_EMAIL_PASSWORD}
-      - QDB_EMAIL_HOST=${QDB_EMAIL_HOST}
-      - QDB_EMAIL_PORT=${QDB_EMAIL_PORT}
-      - QDB_IN_DOCKER=true
-  duckdns:
-    image: lscr.io/linuxserver/duckdns:latest
-    restart: always
-    volumes:
-      - ./volumes/duckdns:/config
-    environment:
-      - SUBDOMAINS=${DUCKDNS_SUBDOMAINS}
-      - TOKEN=${DUCKDNS_TOKEN}
-  wireguard:
-    image: ghcr.io/wg-easy/wg-easy
-    restart: always
-    cap_add:
-      - NET_ADMIN
-      - SYS_MODULE
-    volumes:
-      - ./volumes/wireguard:/etc/wireguard
-    environment:
-      - WG_HOST=${WIREGUARD_SERVERURL} # eth interface can be determined by running 'ip route get 8.8.8.8' in the wg container
-      - WG_POST_UP=iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-      - WG_POST_DOWN=iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
-    ports:
-      - 51820:51820/udp
-      - 51821:51821/tcp
-    sysctls:
-      - net.ipv4.conf.all.src_valid_mark=1
-      - net.ipv4.ip_forward=1
   dozzle:
     image: amir20/dozzle:latest
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-  pihole:
-    image: pihole/pihole:latest
-    restart: always
-    environment:
-      TZ: 'America/Edmonton'
-      WEBPASSWORD: 'rqure'
-    ports:
-      - "${HOST_IP}:53:53/tcp"
-      - "${HOST_IP}:53:53/udp"
-      - "[${HOST_IPv6}]:53:53/tcp"
-      - "[${HOST_IPv6}]:53:53/udp"
-    volumes:
-      - './volumes/qpihole/etc-pihole/:/etc/pihole/'
-      - './volumes/qpihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
   nginx:
     image: nginx:latest
     ports:
@@ -356,11 +276,8 @@ services:
       - ./volumes/qnginx/conf.d:/etc/nginx/conf.d
       - ./volumes/qnginx/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
-      - garage
       - webgateway
       - dozzle
-      - pihole
-      - zigbee2mqtt
 EOF
 
 docker compose up -d --force-recreate
