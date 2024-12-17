@@ -148,21 +148,6 @@ server {
 
 server {
     listen 80;
-    server_name z2m.local;
-
-    location / {
-        proxy_pass http://zigbee2mqtt:8080;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
-
-server {
-    listen 80;
     server_name pihole.local;
 
     location / {
@@ -191,35 +176,6 @@ server {
     }
 }
 
-server {
-    listen 80;
-    server_name garage.local;
-
-    location / {
-        proxy_pass http://garage:20001;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
-
-server {
-    listen 20000;
-    server_name garage.local;
-
-    location /ws {
-        proxy_pass http://webgateway:20000;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
 EOF
 fi
 
@@ -252,7 +208,7 @@ services:
     environment:
       - Q_IN_DOCKER=true
   qdp:
-    image: rqure/webgateway:v0.0.12
+    image: rqure/qdp:v0.0.4
     restart: always
     environment:
       - Q_IN_DOCKER=true
