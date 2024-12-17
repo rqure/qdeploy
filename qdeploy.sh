@@ -11,6 +11,22 @@ if [ ! -f ~/.wireguard.serverurl ]; then
     touch ~/.wireguard.serverurl
 fi
 
+if [ ! -f ~/.smtp.email ]; then
+    touch ~/.smtp.email
+fi
+
+if [ ! -f ~/.smtp.pwd ]; then
+    touch ~/.smtp.pwd
+fi
+
+if [ ! -f ~/.smtp.host ]; then
+    touch ~/.smtp.host
+fi
+
+if [ ! -f ~/.smtp.port ]; then
+    touch ~/.smtp.port
+fi
+
 export NETWORK_INTERFACE=$(ip route | grep default | awk '{print $5}')
 if [ ! -f ~/.qnet.host.v4 ]; then
     export HOST_IP=$(ip -4 addr show dev $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}')
@@ -18,53 +34,32 @@ if [ ! -f ~/.qnet.host.v4 ]; then
 fi
 
 if [ ! -f ~/.qnet.host.v6 ]; then
-    export HOST_IPv6=$(ip -6 addr show dev $NETWORK_INTERFACE scope link | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d')
+    # Get the statically assigned ULA address
+    export HOST_IPv6=$(ip -6 addr show dev $NETWORK_INTERFACE | grep 'inet6 fd00' | head -n 1 | awk '{print $2}' | cut -d'/' -f1)
     echo "$HOST_IPv6" > ~/.qnet.host.v6
-fi
-
-if [ ! -f ~/.qnet.gateway.v4 ]; then
-    export GATEWAY=$(ip route | grep default | awk '{print $3}')
-    echo "$GATEWAY" > ~/.qnet.gateway.v4
-fi
-
-if [ ! -f ~/.qnet.gateway.v6 ]; then
-    export GATEWAYv6=$(ip -6 route | grep default | awk '{print $3}')
-    echo "$GATEWAYv6" > ~/.qnet.gateway.v6
-fi
-
-if [ ! -f ~/.qnet.subnet.v4 ]; then
-    echo "192.168.1.0/24" > ~/.qnet.subnet.v4
-fi
-
-if [ ! -f ~/.qnet.subnet.v6 ]; then
-    echo "fe80::/10" > ~/.qnet.subnet.v6
-fi
-
-if [ ! -f ~/.qnet.pihole.v4 ]; then
-    echo "192.168.1.15" > ~/.qnet.pihole.v4
-fi
-
-if [ ! -f ~/.qnet.pihole.v6 ]; then
-    echo "fe80::15" > ~/.qnet.pihole.v6
 fi
 
 export DUCKDNS_SUBDOMAINS=$(cat ~/.duckdns.subdomains)
 export DUCKDNS_TOKEN=$(cat ~/.duckdns.token)
 export WIREGUARD_SERVERURL=$(cat ~/.wireguard.serverurl)
 
+export QDB_EMAIL_ADDRESS=$(cat ~/.smtp.email)
+export QDB_EMAIL_PASSWORD=$(cat ~/.smtp.pwd)
+export QDB_EMAIL_HOST=$(cat ~/.smtp.host)
+export QDB_EMAIL_PORT=$(cat ~/.smtp.port)
+
 export HOST_IP=$(cat ~/.qnet.host.v4)
 export HOST_IPv6=$(cat ~/.qnet.host.v6)
-export GATEWAY=$(cat ~/.qnet.gateway.v4)
-export GATEWAYv6=$(cat ~/.qnet.gateway.v6)
-export SUBNET=$(cat ~/.qnet.subnet.v4)
-export SUBNETv6=$(cat ~/.qnet.subnet.v6)
-export PIHOLEv4=$(cat ~/.qnet.pihole.v4)
-export PIHOLEv6=$(cat ~/.qnet.pihole.v6)
 
 # Create volumes for config and data
 mkdir -p volumes/duckdns/
 
 mkdir -p volumes/wireguard/
+
+mkdir -p volumes/qzigbee2mqtt/
+if [ ! -f volumes/qzigbee2mqtt/configuration.yaml ]; then
+    curl https://raw.githubusercontent.com/rqure/qzigbee2mqtt/main/configuration.yaml -o volumes/qzigbee2mqtt/configuration.yaml
+fi
 
 mkdir -p volumes/qredis/data/
 
@@ -78,8 +73,10 @@ fi
 if [ ! -f volumes/qpihole/etc-dnsmasq.d/05-pihole-custom-cname.conf ]; then
     cat <<EOF > volumes/qpihole/etc-dnsmasq.d/05-pihole-custom-cname.conf
 cname=logs.local,qserver.local
+cname=garage.local,qserver.local
+cname=z2m.local,qserver.local
 cname=database.local,qserver.local
-cname=pi.hole,qserver.local
+cname=pihole.local,qserver.local
 EOF
 fi
 
@@ -110,6 +107,8 @@ http {
     tcp_nodelay     on;
     keepalive_timeout  65;
     types_hash_max_size 2048;
+
+    client_max_body_size 1000M;
 
     include /etc/nginx/conf.d/*.conf;
 }
@@ -149,9 +148,69 @@ server {
 
 server {
     listen 80;
+    server_name z2m.local;
+
+    location / {
+        proxy_pass http://zigbee2mqtt:8080;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+
+server {
+    listen 80;
+    server_name pihole.local;
+
+    location / {
+        proxy_pass http://pihole:80;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+
+server {
+    listen 80;
     server_name database.local;
 
     location / {
+        proxy_pass http://webgateway:20000;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+
+server {
+    listen 80;
+    server_name garage.local;
+
+    location / {
+        proxy_pass http://garage:20001;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+
+server {
+    listen 20000;
+    server_name garage.local;
+
+    location /ws {
         proxy_pass http://webgateway:20000;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
@@ -173,11 +232,30 @@ services:
     volumes:
       - ./volumes/qredis/data:/data
   clock:
-    image: rqure/clock:v2.2.3
+    image: rqure/clock:v2.2.5
     restart: always
+    environment:
+      - Q_IN_DOCKER=true
+  qsm:
+    image: rqure/qsm:v0.0.8
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - Q_IN_DOCKER=true
+    resources:
+      limits:
+        memory: 50M
   webgateway:
-    image: rqure/webgateway:v0.0.8
+    image: rqure/webgateway:v0.0.12
     restart: always
+    environment:
+      - Q_IN_DOCKER=true
+  qdp:
+    image: rqure/webgateway:v0.0.12
+    restart: always
+    environment:
+      - Q_IN_DOCKER=true
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
     restart: always
@@ -214,19 +292,15 @@ services:
     restart: always
     environment:
       TZ: 'America/Edmonton'
-      WEBPASSWORD: 'admin'
+      WEBPASSWORD: 'rqure'
     ports:
-      - "${PIHOLEv4}:53:53/tcp"
-      - "${PIHOLEv4}:53:53/udp"
-      - "[${PIHOLEv6}]:53:53/tcp"
-      - "[${PIHOLEv6}]:53:53/udp"
+      - "${HOST_IP}:53:53/tcp"
+      - "${HOST_IP}:53:53/udp"
+      - "[${HOST_IPv6}]:53:53/tcp"
+      - "[${HOST_IPv6}]:53:53/udp"
     volumes:
       - './volumes/qpihole/etc-pihole/:/etc/pihole/'
       - './volumes/qpihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
-    networks:
-      qnet:
-        ipv4_address: ${PIHOLEv4}
-        ipv6_address: ${PIHOLEv6}
   nginx:
     image: nginx:latest
     ports:
@@ -235,18 +309,10 @@ services:
     volumes:
       - ./volumes/qnginx/conf.d:/etc/nginx/conf.d
       - ./volumes/qnginx/nginx.conf:/etc/nginx/nginx.conf
-networks:
-  qnet:
-    enable_ipv6: true
-    driver: macvlan
-    driver_opts:
-      parent: ${NETWORK_INTERFACE}
-    ipam:
-      config:
-        - subnet: ${SUBNET}
-          gateway: ${GATEWAY}
-        - subnet: ${SUBNETv6}
-          gateway: ${GATEWAYv6}
+    depends_on:
+      - webgateway
+      - dozzle
+      - pihole
 EOF
 
-docker compose up -d
+docker compose up -d --force-recreate
