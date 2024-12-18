@@ -211,51 +211,13 @@ services:
       - Q_IN_DOCKER=true
     devices:
       - "/dev/bus/usb:/dev/bus/usb"
-  duckdns:
-    image: lscr.io/linuxserver/duckdns:latest
-    restart: always
-    volumes:
-      - ./volumes/duckdns:/config
-    environment:
-      - SUBDOMAINS=${DUCKDNS_SUBDOMAINS}
-      - TOKEN=${DUCKDNS_TOKEN}
-  wireguard:
-    image: ghcr.io/wg-easy/wg-easy
-    restart: always
-    cap_add:
-      - NET_ADMIN
-      - SYS_MODULE
-    volumes:
-      - ./volumes/wireguard:/etc/wireguard
-    environment:
-      - WG_HOST=${WIREGUARD_SERVERURL} # eth interface can be determined by running 'ip route get 8.8.8.8' in the wg container
-      - WG_POST_UP=iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-      - WG_POST_DOWN=iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
-    ports:
-      - 51820:51820/udp
-      - 51821:51821/tcp
-    sysctls:
-      - net.ipv4.conf.all.src_valid_mark=1
-      - net.ipv4.ip_forward=1
   dozzle:
     image: amir20/dozzle:latest
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-  pihole:
-    image: pihole/pihole:latest
-    restart: always
-    environment:
-      TZ: 'America/Edmonton'
-      WEBPASSWORD: 'rqure'
     ports:
-      - "${HOST_IP}:53:53/tcp"
-      - "${HOST_IP}:53:53/udp"
-      - "[${HOST_IPv6}]:53:53/tcp"
-      - "[${HOST_IPv6}]:53:53/udp"
-    volumes:
-      - './volumes/qpihole/etc-pihole/:/etc/pihole/'
-      - './volumes/qpihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
+      - "8080:8080"
   nginx:
     image: nginx:latest
     ports:
@@ -267,7 +229,6 @@ services:
     depends_on:
       - webgateway
       - dozzle
-      - pihole
 EOF
 
 docker compose up -d --force-recreate
