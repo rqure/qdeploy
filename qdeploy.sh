@@ -193,7 +193,7 @@ services:
     environment:
       - Q_IN_DOCKER=true
   qsm:
-    image: rqure/qsm:v0.0.8
+    image: rqure/qsm:v0.1.0
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -203,7 +203,7 @@ services:
       limits:
         memory: 50M
   webgateway:
-    image: rqure/webgateway:v0.0.12
+    image: rqure/webgateway:v0.1.1
     restart: always
     environment:
       - Q_IN_DOCKER=true
