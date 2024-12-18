@@ -199,9 +199,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - Q_IN_DOCKER=true
-    resources:
-      limits:
-        memory: 50M
   webgateway:
     image: rqure/webgateway:v0.1.1
     restart: always
