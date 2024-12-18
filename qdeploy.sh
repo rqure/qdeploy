@@ -212,6 +212,9 @@ services:
     restart: always
     environment:
       - Q_IN_DOCKER=true
+    volumes:
+      - /run/udev:/run/udev:ro
+      - /dev/ttyUSB0:/dev/ttyACM0
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
     restart: always
