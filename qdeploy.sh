@@ -175,7 +175,7 @@ services:
     ports:
       - "6379:6379"
   clock:
-    image: rqure/clock:v2.2.5
+    image: rqure/clock:v2.3.0
     restart: always
     environment:
       - Q_IN_DOCKER=true
