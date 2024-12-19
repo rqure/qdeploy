@@ -172,6 +172,8 @@ services:
     restart: always
     volumes:
       - ./volumes/qredis/data:/data
+    ports:
+      - "6379:6379"
   clock:
     image: rqure/clock:v2.2.5
     restart: always
