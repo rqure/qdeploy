@@ -192,7 +192,7 @@ services:
     environment:
       - Q_IN_DOCKER=true
   qdp:
-    image: rqure/qdp:v0.0.6
+    image: rqure/qdp:v0.0.7
     restart: always
     environment:
       - Q_IN_DOCKER=true
