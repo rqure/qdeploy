@@ -175,24 +175,24 @@ services:
     ports:
       - "6379:6379"
   clock:
-    image: rqure/clock:v2.3.2
+    image: rqure/clock:v2.3.3
     restart: always
     environment:
       - Q_IN_DOCKER=true
   qsm:
-    image: rqure/qsm:v0.1.3
+    image: rqure/qsm:v0.1.4
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - Q_IN_DOCKER=true
   webgateway:
-    image: rqure/webgateway:v0.1.3
+    image: rqure/webgateway:v0.1.4
     restart: always
     environment:
       - Q_IN_DOCKER=true
   qdp:
-    image: rqure/qdp:v0.0.9
+    image: rqure/qdp:v0.0.10
     restart: always
     environment:
       - Q_IN_DOCKER=true
