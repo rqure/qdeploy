@@ -148,36 +148,6 @@ server {
 
 server {
     listen 80;
-    server_name z2m.local;
-
-    location / {
-        proxy_pass http://zigbee2mqtt:8080;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
-
-server {
-    listen 80;
-    server_name pihole.local;
-
-    location / {
-        proxy_pass http://pihole:80;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
-
-server {
-    listen 80;
     server_name database.local;
 
     location / {
@@ -191,35 +161,6 @@ server {
     }
 }
 
-server {
-    listen 80;
-    server_name garage.local;
-
-    location / {
-        proxy_pass http://garage:20001;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
-
-server {
-    listen 20000;
-    server_name garage.local;
-
-    location /ws {
-        proxy_pass http://webgateway:20000;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
 EOF
 fi
 
@@ -231,42 +172,43 @@ services:
     restart: always
     volumes:
       - ./volumes/qredis/data:/data
+    ports:
+      - "6379:6379"
   clock:
-    image: rqure/clock:v2.2.5
+    image: rqure/clock:v2.3.4
     restart: always
     environment:
-      - QDB_IN_DOCKER=true
-  audio-player:
-    image: rqure/audio-player:v1.2.7
-    restart: always
-    environment:
-      - QDB_IN_DOCKER=true
-  prayer:
-    image: rqure/adhan:v2.2.8
-    restart: always
-    environment:
-      - ALERTS=TTS,EMAILS
-      - QDB_IN_DOCKER=true
+      - Q_IN_DOCKER=true
   qsm:
-    image: rqure/qsm:v0.0.8
+    image: rqure/qsm:v0.1.5
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - QDB_IN_DOCKER=true
-    resources:
-      limits:
-        memory: 50M
+      - Q_IN_DOCKER=true
   webgateway:
-    image: rqure/webgateway:v0.0.12
+    image: rqure/webgateway:v0.1.5
     restart: always
     environment:
-      - QDB_IN_DOCKER=true
+      - Q_IN_DOCKER=true
+  audio-player:
+    image: rqure/audio-player:v1.3.0
+    restart: always
+    environment:
+      - Q_IN_DOCKER=true
+  prayer:
+    image: rqure/adhan:v2.3.0
+    restart: always
+    environment:
+      - ALERTS=TTS,EMAILS
+      - Q_IN_DOCKER=true
   dozzle:
     image: amir20/dozzle:latest
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8080:8080"
   nginx:
     image: nginx:latest
     ports:
