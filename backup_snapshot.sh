@@ -9,10 +9,11 @@ DIRECTORY=/tmp/snapshot.json
 TAR_FILENAME="backup_snapshot_$(date +'%Y%m%d_%H%M%S').tar.gz"
 TAR_FILEPATH="/tmp/$TAR_FILENAME"
 GDRIVE_FOLDER_ID="backups/snapshots"
+STORE_URL="http://localhost"
 
 # Make a backup
-ID=$(curl -s localhost/make-client-id | jq -r '.header.id')
-curl localhost/api -d "{\"header\":{\"id\":\"$ID\",\"timestamp\":\"2024-07-04T22:37:18.544393318Z\"},\"payload\":{\"@type\":\"type.googleapis.com/qdb.WebConfigCreateSnapshotRequest\"}}" | jq '.payload |= (del(.status) | .["@type"] = "type.googleapis.com/qdb.WebConfigRestoreSnapshotRequest")' > $DIRECTORY
+ID=$(curl -s $STORE_URL/make-client-id | jq -r '.header.id')
+curl $STORE_URL/api -d "{\"header\":{\"id\":\"$ID\",\"timestamp\":\"2024-07-04T22:37:18.544393318Z\"},\"payload\":{\"@type\":\"type.googleapis.com/protobufs.WebConfigCreateSnapshotRequest\"}}" | jq '.payload |= (del(.status) | .["@type"] = "type.googleapis.com/protobufs.WebConfigRestoreSnapshotRequest")' > $DIRECTORY
 
 # Create a tar.gz archive of the directory
 tar -czvf "$TAR_FILEPATH" "$DIRECTORY"
