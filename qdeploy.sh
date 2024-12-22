@@ -175,29 +175,29 @@ services:
     ports:
       - "6379:6379"
   clock:
-    image: rqure/clock:v2.3.4
+    image: rqure/clock:v2.3.5
     restart: always
     environment:
       - Q_IN_DOCKER=true
   qsm:
-    image: rqure/qsm:v0.1.5
+    image: rqure/qsm:v0.1.6
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - Q_IN_DOCKER=true
   webgateway:
-    image: rqure/webgateway:v0.1.5
+    image: rqure/webgateway:v0.1.6
     restart: always
     environment:
       - Q_IN_DOCKER=true
   audio-player:
-    image: rqure/audio-player:v1.3.0
+    image: rqure/audio-player:v1.2.8
     restart: always
     environment:
       - Q_IN_DOCKER=true
   prayer:
-    image: rqure/adhan:v2.3.0
+    image: rqure/adhan:v2.3.9
     restart: always
     environment:
       - ALERTS=TTS,EMAILS
