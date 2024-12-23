@@ -58,6 +58,11 @@ export HOST_IP=$(cat ~/.qnet.host.v4)
 export HOST_IPv6=$(cat ~/.qnet.host.v6)
 
 # Create volumes for config and data
+mkdir -p volumes/google/
+if [ ! -f volumes/google/creds.json ]; then
+    cp ~/.google.app.creds volumes/google/creds.json
+fi
+
 mkdir -p volumes/duckdns/
 
 mkdir -p volumes/wireguard/
@@ -202,7 +207,9 @@ services:
     restart: always
     environment:
       - Q_IN_DOCKER=true
-      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+      - GOOGLE_APPLICATION_CREDENTIALS=/google/creds.json
+    volumes:
+      - ./volumes/google:/google
   adhan:
     image: rqure/adhan:v2.3.2
     restart: always
