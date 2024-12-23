@@ -186,24 +186,24 @@ services:
     ports:
       - "6379:6379"
   clock:
-    image: rqure/clock:v2.3.6
+    image: rqure/clock:v2.3.7
     restart: always
     environment:
       - Q_IN_DOCKER=true
   qsm:
-    image: rqure/qsm:v0.1.7
+    image: rqure/qsm:v0.1.8
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - Q_IN_DOCKER=true
   webgateway:
-    image: rqure/webgateway:v0.1.6
+    image: rqure/webgateway:v0.1.7
     restart: always
     environment:
       - Q_IN_DOCKER=true
   audio-player:
-    image: rqure/audio-player:v1.2.10
+    image: rqure/audio-player:v1.2.11
     restart: always
     environment:
       - Q_IN_DOCKER=true
@@ -211,13 +211,13 @@ services:
     volumes:
       - ./volumes/google:/google
   adhan:
-    image: rqure/adhan:v2.3.2
+    image: rqure/adhan:v2.3.3
     restart: always
     environment:
       - ALERTS=TTS
       - Q_IN_DOCKER=true
   alert:
-    image: rqure/alert:v0.1.3
+    image: rqure/alert:v0.1.4
     restart: always
     environment:
       - Q_IN_DOCKER=true
