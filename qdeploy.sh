@@ -198,7 +198,7 @@ services:
     environment:
       - Q_IN_DOCKER=true
   webgateway:
-    image: rqure/webgateway:v0.1.7
+    image: rqure/webgateway:v0.1.9
     restart: always
     environment:
       - Q_IN_DOCKER=true
