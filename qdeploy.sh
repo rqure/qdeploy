@@ -27,6 +27,10 @@ if [ ! -f ~/.smtp.port ]; then
     touch ~/.smtp.port
 fi
 
+if [ ! -f ~/.google.app.creds ]; then
+    touch ~/.google.app.creds
+fi
+
 export NETWORK_INTERFACE=$(ip route | grep default | awk '{print $5}')
 if [ ! -f ~/.qnet.host.v4 ]; then
     export HOST_IP=$(ip -4 addr show dev $NETWORK_INTERFACE | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | awk -F'/' '{print $1}')
@@ -47,6 +51,8 @@ export QDB_EMAIL_ADDRESS=$(cat ~/.smtp.email)
 export QDB_EMAIL_PASSWORD=$(cat ~/.smtp.pwd)
 export QDB_EMAIL_HOST=$(cat ~/.smtp.host)
 export QDB_EMAIL_PORT=$(cat ~/.smtp.port)
+
+export GOOGLE_APPLICATION_CREDENTIALS=$(cat ~/.google.app.creds)
 
 export HOST_IP=$(cat ~/.qnet.host.v4)
 export HOST_IPv6=$(cat ~/.qnet.host.v6)
@@ -175,12 +181,12 @@ services:
     ports:
       - "6379:6379"
   clock:
-    image: rqure/clock:v2.3.5
+    image: rqure/clock:v2.3.6
     restart: always
     environment:
       - Q_IN_DOCKER=true
   qsm:
-    image: rqure/qsm:v0.1.6
+    image: rqure/qsm:v0.1.7
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -192,15 +198,21 @@ services:
     environment:
       - Q_IN_DOCKER=true
   audio-player:
-    image: rqure/audio-player:v1.2.8
+    image: rqure/audio-player:v1.2.10
     restart: always
     environment:
       - Q_IN_DOCKER=true
-  prayer:
-    image: rqure/adhan:v2.3.9
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+  adhan:
+    image: rqure/adhan:v2.3.2
     restart: always
     environment:
-      - ALERTS=TTS,EMAILS
+      - ALERTS=TTS
+      - Q_IN_DOCKER=true
+  alert:
+    image: rqure/alert:v0.1.3
+    restart: always
+    environment:
       - Q_IN_DOCKER=true
   dozzle:
     image: amir20/dozzle:latest
