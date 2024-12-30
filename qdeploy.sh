@@ -247,7 +247,9 @@ services:
     restart: always
     environment:
       - QDB_IN_DOCKER=true
-      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+      - GOOGLE_APPLICATION_CREDENTIALS=/google/creds.json
+    volumes:
+      - ./volumes/google:/google
   prayer:
     image: rqure/adhan:latest
     restart: always
