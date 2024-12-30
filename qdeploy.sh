@@ -364,6 +364,7 @@ services:
     volumes:
       - ./volumes/qnginx/conf.d:/etc/nginx/conf.d
       - ./volumes/qnginx/nginx.conf:/etc/nginx/nginx.conf
+    restart: always
     depends_on:
       - garage
       - webgateway
