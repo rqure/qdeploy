@@ -52,8 +52,6 @@ export QDB_EMAIL_PASSWORD=$(cat ~/.smtp.pwd)
 export QDB_EMAIL_HOST=$(cat ~/.smtp.host)
 export QDB_EMAIL_PORT=$(cat ~/.smtp.port)
 
-export GOOGLE_APPLICATION_CREDENTIALS=$(cat ~/.google.app.creds)
-
 export HOST_IP=$(cat ~/.qnet.host.v4)
 export HOST_IPv6=$(cat ~/.qnet.host.v6)
 
