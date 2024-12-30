@@ -238,24 +238,24 @@ services:
     volumes:
       - ./volumes/qredis/data:/data
   clock:
-    image: rqure/clock:v2.2.5
+    image: rqure/clock:latest
     restart: always
     environment:
       - QDB_IN_DOCKER=true
   audio-player:
-    image: rqure/audio-player:v1.2.7
+    image: rqure/audio-player:latest
     restart: always
     environment:
       - QDB_IN_DOCKER=true
       - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
   prayer:
-    image: rqure/adhan:v2.2.8
+    image: rqure/adhan:latest
     restart: always
     environment:
       - ALERTS=TTS,EMAILS
       - QDB_IN_DOCKER=true
   qsm:
-    image: rqure/qsm:v0.0.8
+    image: rqure/qsm:latest
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -280,28 +280,28 @@ services:
       - /dev/ttyUSB0:/dev/ttyACM0
       - ./volumes/qzigbee2mqtt:/app/data
   mqttgateway:
-    image: rqure/mqttgateway:v1.2.5
+    image: rqure/mqttgateway:latest
     restart: always
     environment:
       - QDB_IN_DOCKER=true
   garage:
-    image: rqure/garage:v1.2.7
+    image: rqure/garage:latest
     restart: always
     environment:
       - ALERTS=TTS,EMAILS
       - QDB_IN_DOCKER=true
   webgateway:
-    image: rqure/webgateway:v0.0.12
+    image: rqure/webgateway:latest
     restart: always
     environment:
       - QDB_IN_DOCKER=true
   alert:
-    image: rqure/alert:v0.0.4
+    image: rqure/alert:latest
     restart: always
     environment:
       - QDB_IN_DOCKER=true
   smtp:
-    image: rqure/smtp:v0.0.3
+    image: rqure/smtp:latest
     restart: always
     environment:
       - QDB_EMAIL_ADDRESS=${QDB_EMAIL_ADDRESS}
