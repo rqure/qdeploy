@@ -241,12 +241,12 @@ services:
     image: rqure/clock:latest
     restart: always
     environment:
-      - QDB_IN_DOCKER=true
+      - Q_IN_DOCKER=true
   audio-player:
     image: rqure/audio-player:latest
     restart: always
     environment:
-      - QDB_IN_DOCKER=true
+      - Q_IN_DOCKER=true
       - GOOGLE_APPLICATION_CREDENTIALS=/google/creds.json
     volumes:
       - ./volumes/google:/google
@@ -255,14 +255,14 @@ services:
     restart: always
     environment:
       - ALERTS=TTS,EMAILS
-      - QDB_IN_DOCKER=true
+      - Q_IN_DOCKER=true
   qsm:
     image: rqure/qsm:latest
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - QDB_IN_DOCKER=true
+      - Q_IN_DOCKER=true
     resources:
       limits:
         memory: 50M
@@ -285,23 +285,23 @@ services:
     image: rqure/mqttgateway:latest
     restart: always
     environment:
-      - QDB_IN_DOCKER=true
+      - Q_IN_DOCKER=true
   garage:
     image: rqure/garage:latest
     restart: always
     environment:
       - ALERTS=TTS,EMAILS
-      - QDB_IN_DOCKER=true
+      - Q_IN_DOCKER=true
   webgateway:
     image: rqure/webgateway:latest
     restart: always
     environment:
-      - QDB_IN_DOCKER=true
+      - Q_IN_DOCKER=true
   alert:
     image: rqure/alert:latest
     restart: always
     environment:
-      - QDB_IN_DOCKER=true
+      - Q_IN_DOCKER=true
   smtp:
     image: rqure/smtp:latest
     restart: always
@@ -310,7 +310,7 @@ services:
       - QDB_EMAIL_PASSWORD=${QDB_EMAIL_PASSWORD}
       - QDB_EMAIL_HOST=${QDB_EMAIL_HOST}
       - QDB_EMAIL_PORT=${QDB_EMAIL_PORT}
-      - QDB_IN_DOCKER=true
+      - Q_IN_DOCKER=true
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
     restart: always
